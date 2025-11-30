@@ -17,11 +17,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Check if WooCommerce is active
-if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-    return;
-}
-
 // Define plugin constants
 define('SIMPLE_PRODUCT_BUNDLES_VERSION', '1.0.0');
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -105,24 +100,26 @@ class Simple_Product_Bundles {
         $this->frontend = new Simple_Product_Bundles_Frontend();
         $this->cart = new Simple_Product_Bundles_Cart();
         $this->ajax = new Simple_Product_Bundles_Ajax();
-        
-        // Declare HPOS compatibility
-        add_action('before_woocommerce_init', [$this, 'declare_hpos_compatibility']);
-    }
-    
-    /**
-     * Declare High Performance Order Storage (HPOS) compatibility
-     */
-    public function declare_hpos_compatibility() {
-        if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
-        }
     }
 }
+
+/**
+ * Declare HPOS compatibility (must be before plugins_loaded)
+ */
+add_action('before_woocommerce_init', function() {
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+});
 
 /**
  * Initialize the plugin
  */
 add_action('plugins_loaded', function() {
+    // Check if WooCommerce is active
+    if (!class_exists('WooCommerce')) {
+        return;
+    }
+    
     Simple_Product_Bundles::get_instance();
 });

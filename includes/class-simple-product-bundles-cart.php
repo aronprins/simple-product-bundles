@@ -44,6 +44,12 @@ class Simple_Product_Bundles_Cart {
             return $passed;
         }
         
+        // Verify nonce
+        if (!isset($_POST['bundle_cart_nonce']) || !wp_verify_nonce($_POST['bundle_cart_nonce'], 'add_bundle_to_cart')) {
+            wc_add_notice(__('Security check failed. Please try again.', 'simple-product-bundles'), 'error');
+            return false;
+        }
+        
         $bundle_items = get_post_meta($product_id, '_bundle_items', true);
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
@@ -56,11 +62,13 @@ class Simple_Product_Bundles_Cart {
             return false;
         }
         
-        foreach ($bundle_items as $item) {
-            $bundled_product = wc_get_product($item['product_id']);
-            if (!$bundled_product) continue;
-            
-            $qty = isset($_POST['bundle_qty'][$item['product_id']]) ? intval($_POST['bundle_qty'][$item['product_id']]) : 0;
+            foreach ($bundle_items as $item) {
+                $bundled_product = wc_get_product($item['product_id']);
+                if (!$bundled_product) continue;
+                
+                // Sanitize product ID and quantity
+                $product_id_key = absint($item['product_id']);
+                $qty = isset($_POST['bundle_qty'][$product_id_key]) ? absint($_POST['bundle_qty'][$product_id_key]) : 0;
             $min_qty = intval($item['min_qty']);
             $max_qty = intval($item['max_qty']);
             
@@ -150,9 +158,11 @@ class Simple_Product_Bundles_Cart {
             $total_volume_savings = 0;
             
             foreach ($bundle_items as $item) {
-                $qty = isset($_POST['bundle_qty'][$item['product_id']]) ? intval($_POST['bundle_qty'][$item['product_id']]) : 0;
+                // Sanitize product ID and quantity
+                $product_id_key = absint($item['product_id']);
+                $qty = isset($_POST['bundle_qty'][$product_id_key]) ? absint($_POST['bundle_qty'][$product_id_key]) : 0;
                 if ($qty > 0) {
-                    $cart_item_data['bundle_configuration'][$item['product_id']] = $qty;
+                    $cart_item_data['bundle_configuration'][$product_id_key] = $qty;
                     
                     // Calculate price with volume discount
                     $bundled_product = wc_get_product($item['product_id']);
@@ -180,7 +190,7 @@ class Simple_Product_Bundles_Cart {
                             $total_volume_savings += $volume_discount_amount;
                             
                             // Store volume discount info
-                            $cart_item_data['bundle_volume_discounts'][$item['product_id']] = [
+                            $cart_item_data['bundle_volume_discounts'][$product_id_key] = [
                                 'discount_value' => $volume_discount_value,
                                 'discount_type'  => $volume_discount_type,
                                 'discount_amount' => $volume_discount_amount,
@@ -192,7 +202,9 @@ class Simple_Product_Bundles_Cart {
                 }
             }
             
-            $cart_item_data['bundle_discount'] = isset($_POST['bundle_discount']) ? floatval($_POST['bundle_discount']) : 0;
+            // Sanitize bundle discount
+            $cart_item_data['bundle_discount'] = isset($_POST['bundle_discount']) ? floatval(sanitize_text_field($_POST['bundle_discount'])) : 0;
+            $cart_item_data['bundle_discount'] = max(0, min(100, $cart_item_data['bundle_discount'])); // Clamp between 0 and 100
             $cart_item_data['bundle_volume_savings'] = $total_volume_savings;
             
             // Apply bundle discount (after volume discounts)
@@ -230,9 +242,9 @@ class Simple_Product_Bundles_Cart {
                         $discount_value = $volume_discounts[$product_id]['discount_value'];
                         
                         if ($discount_type === 'fixed') {
-                            $item_text .= ' (' . wc_price($discount_value) . ' ' . __('off each', 'simple-product-bundles') . ')';
+                            $item_text .= ' (' . wp_kses_post(wc_price($discount_value)) . ' ' . esc_html__('off each', 'simple-product-bundles') . ')';
                         } else {
-                            $item_text .= ' (' . $discount_value . '% ' . __('off', 'simple-product-bundles') . ')';
+                            $item_text .= ' (' . esc_html($discount_value) . '% ' . esc_html__('off', 'simple-product-bundles') . ')';
                         }
                     }
                     
@@ -242,7 +254,7 @@ class Simple_Product_Bundles_Cart {
             
             $item_data[] = [
                 'key'   => __('Bundle Items', 'simple-product-bundles'),
-                'value' => implode(', ', $items_display),
+                'value' => esc_html(implode(', ', $items_display)),
             ];
             
             // Show total volume savings if any
@@ -281,9 +293,9 @@ class Simple_Product_Bundles_Cart {
                         $discount_value = $volume_discounts[$product_id]['discount_value'];
                         
                         if ($discount_type === 'fixed') {
-                            $item_text .= ' (' . wc_price($discount_value) . ' ' . __('off each', 'simple-product-bundles') . ')';
+                            $item_text .= ' (' . wp_kses_post(wc_price($discount_value)) . ' ' . esc_html__('off each', 'simple-product-bundles') . ')';
                         } else {
-                            $item_text .= ' (' . $discount_value . '% ' . __('off', 'simple-product-bundles') . ')';
+                            $item_text .= ' (' . esc_html($discount_value) . '% ' . esc_html__('off', 'simple-product-bundles') . ')';
                         }
                     }
                     
@@ -291,11 +303,11 @@ class Simple_Product_Bundles_Cart {
                 }
             }
             
-            $item->add_meta_data(__('Bundle Items', 'simple-product-bundles'), implode(', ', $items_display));
+            $item->add_meta_data(__('Bundle Items', 'simple-product-bundles'), esc_html(implode(', ', $items_display)));
             
             // Add volume savings if any
             if (isset($values['bundle_volume_savings']) && $values['bundle_volume_savings'] > 0) {
-                $item->add_meta_data(__('Volume Savings', 'simple-product-bundles'), wc_price($values['bundle_volume_savings']));
+                $item->add_meta_data(__('Volume Savings', 'simple-product-bundles'), wp_kses_post(wc_price($values['bundle_volume_savings'])));
             }
         }
     }

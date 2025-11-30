@@ -15,11 +15,25 @@ class Simple_Product_Bundles_Frontend {
      * Constructor
      */
     public function __construct() {
-        // Frontend: Display bundle options and add to cart
-        add_action('woocommerce_bundle_add_to_cart', [$this, 'bundle_add_to_cart_template']);
+        // Frontend: Replace add to cart form for bundle products
+        add_action('woocommerce_single_product_summary', [$this, 'bundle_add_to_cart_template'], 25);
+        
+        // Remove default add to cart for bundle products
+        add_action('woocommerce_single_product_summary', [$this, 'remove_default_add_to_cart'], 1);
 
         // Frontend scripts
         add_action('wp_enqueue_scripts', [$this, 'frontend_scripts']);
+    }
+    
+    /**
+     * Remove default add to cart button for bundle products
+     */
+    public function remove_default_add_to_cart() {
+        global $product;
+        
+        if ($product && $product->get_type() === 'bundle') {
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+        }
     }
 
     /**
@@ -35,7 +49,7 @@ class Simple_Product_Bundles_Frontend {
         $bundle_items = get_post_meta($product->get_id(), '_bundle_items', true);
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
-            echo '<p>' . __('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
+            echo '<p>' . esc_html__('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
             return;
         }
         
@@ -45,6 +59,9 @@ class Simple_Product_Bundles_Frontend {
         }
         
         echo '<form class="cart bundle-cart-form" action="' . esc_url(apply_filters('woocommerce_add_to_cart_form_action', $product->get_permalink())) . '" method="post" enctype="multipart/form-data">';
+        
+        // Add nonce field for security
+        wp_nonce_field('add_bundle_to_cart', 'bundle_cart_nonce');
         
         $this->display_bundle_options();
         
@@ -80,12 +97,12 @@ class Simple_Product_Bundles_Frontend {
         $discount = floatval(get_post_meta($product->get_id(), '_bundle_discount', true));
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
-            echo '<p class="bundle-empty-message">' . __('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
+            echo '<p class="bundle-empty-message">' . esc_html__('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
             return;
         }
         
         echo '<div class="bundle-items-wrapper">';
-        echo '<h3 class="bundle-heading">' . __('Bundle Contents', 'simple-product-bundles') . '</h3>';
+        echo '<h3 class="bundle-heading">' . esc_html__('Bundle Contents', 'simple-product-bundles') . '</h3>';
         
         echo '<div class="bundle-items-list">';
         
@@ -124,12 +141,12 @@ class Simple_Product_Bundles_Frontend {
             // Product details
             echo '<div class="bundle-item-details">';
             echo '<h4 class="bundle-item-name">' . esc_html($bundled_product->get_name()) . '</h4>';
-            echo '<p class="bundle-item-price">' . wc_price($price) . ' ' . __('each', 'simple-product-bundles') . '</p>';
+            echo '<p class="bundle-item-price">' . wp_kses_post(wc_price($price)) . ' ' . esc_html__('each', 'simple-product-bundles') . '</p>';
             
             // Volume discount tiers display
             if (!empty($volume_discounts)) {
                 echo '<div class="bundle-volume-tiers">';
-                echo '<div class="volume-tiers-label">' . __('Volume Deals:', 'simple-product-bundles') . '</div>';
+                echo '<div class="volume-tiers-label">' . esc_html__('Volume Deals:', 'simple-product-bundles') . '</div>';
                 echo '<div class="volume-tiers-badges">';
                 foreach ($volume_discounts as $tier) {
                     $tier_min = intval($tier['min_qty']);
@@ -139,9 +156,19 @@ class Simple_Product_Bundles_Frontend {
                     echo '<span class="volume-tier-badge" data-min-qty="' . esc_attr($tier_min) . '" data-discount="' . esc_attr($tier_discount) . '" data-discount-type="' . esc_attr($tier_type) . '">';
                     
                     if ($tier_type === 'fixed') {
-                        echo sprintf(__('%d+ = %s off each', 'simple-product-bundles'), $tier_min, wc_price($tier_discount));
+                        echo sprintf(
+                            /* translators: %d: minimum quantity, %s: discount amount */
+                            __('%d+ = %s off each', 'simple-product-bundles'),
+                            esc_html($tier_min),
+                            wp_kses_post(wc_price($tier_discount))
+                        );
                     } else {
-                        echo sprintf(__('%d+ = %s%% off', 'simple-product-bundles'), $tier_min, $tier_discount);
+                        echo sprintf(
+                            /* translators: %d: minimum quantity, %s: discount percentage */
+                            __('%d+ = %s%% off', 'simple-product-bundles'),
+                            esc_html($tier_min),
+                            esc_html($tier_discount)
+                        );
                     }
                     
                     echo '</span>';
@@ -172,18 +199,31 @@ class Simple_Product_Bundles_Frontend {
             
             // Quantity hint
             if ($min_qty == 0 && $max_qty == 0) {
-                echo '<span class="bundle-qty-hint">' . __('Optional', 'simple-product-bundles') . '</span>';
+                echo '<span class="bundle-qty-hint">' . esc_html__('Optional', 'simple-product-bundles') . '</span>';
             } elseif ($min_qty == 0 && $max_qty > 0) {
-                echo '<span class="bundle-qty-hint">' . sprintf(__('Up to %d', 'simple-product-bundles'), $max_qty) . '</span>';
+                echo '<span class="bundle-qty-hint">' . sprintf(
+                    /* translators: %d: maximum quantity */
+                    esc_html__('Up to %d', 'simple-product-bundles'),
+                    esc_html($max_qty)
+                ) . '</span>';
             } elseif ($max_qty == 0) {
-                echo '<span class="bundle-qty-hint">' . sprintf(__('Min %d', 'simple-product-bundles'), $min_qty) . '</span>';
+                echo '<span class="bundle-qty-hint">' . sprintf(
+                    /* translators: %d: minimum quantity */
+                    esc_html__('Min %d', 'simple-product-bundles'),
+                    esc_html($min_qty)
+                ) . '</span>';
             } else {
-                echo '<span class="bundle-qty-hint">' . sprintf(__('%d–%d qty', 'simple-product-bundles'), $min_qty, $max_qty) . '</span>';
+                echo '<span class="bundle-qty-hint">' . sprintf(
+                    /* translators: %1$d: minimum quantity, %2$d: maximum quantity */
+                    esc_html__('%1$d–%2$d qty', 'simple-product-bundles'),
+                    esc_html($min_qty),
+                    esc_html($max_qty)
+                ) . '</span>';
             }
             
             // Subtotal with volume discount display
             echo '<div class="bundle-item-pricing">';
-            echo '<span class="bundle-item-subtotal" data-subtotal="' . esc_attr($price * $default_qty) . '">' . wc_price($price * $default_qty) . '</span>';
+            echo '<span class="bundle-item-subtotal" data-subtotal="' . esc_attr($price * $default_qty) . '">' . wp_kses_post(wc_price($price * $default_qty)) . '</span>';
             echo '<span class="bundle-item-savings" style="display: none;"></span>';
             echo '</div>';
             echo '</div>';
@@ -198,29 +238,37 @@ class Simple_Product_Bundles_Frontend {
         
         // Always show subtotal row (for volume discounts)
         echo '<div class="bundle-summary-row bundle-subtotal-row">';
-        echo '<span class="bundle-summary-label">' . __('Subtotal', 'simple-product-bundles') . '</span>';
-        echo '<span class="bundle-summary-value bundle-subtotal">' . wc_price(0) . '</span>';
+        echo '<span class="bundle-summary-label">' . esc_html__('Subtotal', 'simple-product-bundles') . '</span>';
+        echo '<span class="bundle-summary-value bundle-subtotal">' . wp_kses_post(wc_price(0)) . '</span>';
         echo '</div>';
         
         // Volume savings row (hidden by default)
         echo '<div class="bundle-summary-row bundle-volume-savings-row" style="display: none;">';
-        echo '<span class="bundle-summary-label">' . __('Volume Savings', 'simple-product-bundles') . '</span>';
-        echo '<span class="bundle-summary-value bundle-volume-savings">−' . wc_price(0) . '</span>';
+        echo '<span class="bundle-summary-label">' . esc_html__('Volume Savings', 'simple-product-bundles') . '</span>';
+        echo '<span class="bundle-summary-value bundle-volume-savings">−' . wp_kses_post(wc_price(0)) . '</span>';
         echo '</div>';
         
         if ($discount > 0) {
             echo '<div class="bundle-summary-row bundle-discount-row">';
-            echo '<span class="bundle-summary-label">' . sprintf(__('Bundle Discount (%s%%)', 'simple-product-bundles'), $discount) . '</span>';
-            echo '<span class="bundle-summary-value bundle-discount">−' . wc_price(0) . '</span>';
+            echo '<span class="bundle-summary-label">' . sprintf(
+                /* translators: %s: discount percentage */
+                __('Bundle Discount (%s%%)', 'simple-product-bundles'),
+                esc_html($discount)
+            ) . '</span>';
+            echo '<span class="bundle-summary-value bundle-discount">−' . wp_kses_post(wc_price(0)) . '</span>';
             echo '</div>';
         }
         
         echo '<div class="bundle-summary-row bundle-total-row">';
-        echo '<span class="bundle-summary-label">' . __('Total', 'simple-product-bundles') . '</span>';
-        echo '<span class="bundle-summary-value bundle-total">' . wc_price(0) . '</span>';
+        echo '<span class="bundle-summary-label">' . esc_html__('Total', 'simple-product-bundles') . '</span>';
+        echo '<span class="bundle-summary-value bundle-total">' . wp_kses_post(wc_price(0)) . '</span>';
         echo '</div>';
         
         echo '</div>'; // .bundle-summary
+        
+        // Sanitize discount value before output
+        $discount = floatval($discount);
+        $discount = max(0, min(100, $discount)); // Clamp between 0 and 100
         
         echo '<input type="hidden" name="bundle_discount" value="' . esc_attr($discount) . '">';
         echo '<input type="hidden" name="bundle_volume_discounts_data" value="">';

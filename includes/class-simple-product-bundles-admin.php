@@ -76,11 +76,14 @@ class Simple_Product_Bundles_Admin {
         }
         $discount = get_post_meta($post->ID, '_bundle_discount', true);
         $enable_bundle_qty = get_post_meta($post->ID, '_bundle_enable_qty', true);
+        
+        // Output nonce field for security
+        wp_nonce_field('save_bundle_data', 'bundle_data_nonce');
         ?>
         <div id="bundle_items_data" class="panel woocommerce_options_panel hidden">
             <div class="options_group">
                 <p class="form-field">
-                    <label><?php _e('Bundled Products', 'simple-product-bundles'); ?></label>
+                    <label><?php esc_html_e('Bundled Products', 'simple-product-bundles'); ?></label>
                 </p>
                 
                 <div id="bundle_items_container">
@@ -95,28 +98,28 @@ class Simple_Product_Bundles_Admin {
                 
                 <div class="bundle-actions">
                     <button type="button" class="button" id="add_bundle_item">
-                        <?php _e('Add Product', 'simple-product-bundles'); ?>
+                        <?php esc_html_e('Add Product', 'simple-product-bundles'); ?>
                     </button>
                 </div>
                 
                 <div class="bundle-discount-field">
-                    <label for="_bundle_discount"><?php _e('Bundle Discount', 'simple-product-bundles'); ?></label>
+                    <label for="_bundle_discount"><?php esc_html_e('Bundle Discount', 'simple-product-bundles'); ?></label>
                     <div class="discount-input-wrap">
                         <input type="number" id="_bundle_discount" name="_bundle_discount" 
                                value="<?php echo esc_attr($discount); ?>" 
                                min="0" max="100" step="0.01">
                         <span class="discount-suffix">%</span>
                     </div>
-                    <span class="description"><?php _e('Applied to the total bundle price', 'simple-product-bundles'); ?></span>
+                    <span class="description"><?php esc_html_e('Applied to the total bundle price', 'simple-product-bundles'); ?></span>
                 </div>
                 
                 <div class="bundle-qty-toggle-field">
                     <label for="_bundle_enable_qty">
                         <input type="checkbox" id="_bundle_enable_qty" name="_bundle_enable_qty" 
                                value="yes" <?php checked($enable_bundle_qty, 'yes'); ?>>
-                        <?php _e('Enable bundle quantity selector', 'simple-product-bundles'); ?>
+                        <?php esc_html_e('Enable bundle quantity selector', 'simple-product-bundles'); ?>
                     </label>
-                    <span class="description"><?php _e('Allow customers to order multiple bundles at once', 'simple-product-bundles'); ?></span>
+                    <span class="description"><?php esc_html_e('Allow customers to order multiple bundles at once', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
         </div>
@@ -165,22 +168,22 @@ class Simple_Product_Bundles_Admin {
             </div>
             <div class="bundle-item-config">
                 <div class="bundle-config-field">
-                    <label><?php _e('Min Quantity', 'simple-product-bundles'); ?></label>
+                    <label><?php esc_html_e('Min Quantity', 'simple-product-bundles'); ?></label>
                     <input type="number" name="bundle_items[<?php echo esc_attr($index); ?>][min_qty]" 
                            value="<?php echo esc_attr($min_qty); ?>" min="0" step="1">
-                    <span class="field-hint"><?php _e('0 = optional', 'simple-product-bundles'); ?></span>
+                    <span class="field-hint"><?php esc_html_e('0 = optional', 'simple-product-bundles'); ?></span>
                 </div>
                 <div class="bundle-config-field">
-                    <label><?php _e('Max Quantity', 'simple-product-bundles'); ?></label>
+                    <label><?php esc_html_e('Max Quantity', 'simple-product-bundles'); ?></label>
                     <input type="number" name="bundle_items[<?php echo esc_attr($index); ?>][max_qty]" 
                            value="<?php echo esc_attr($max_qty); ?>" min="0" step="1">
-                    <span class="field-hint"><?php _e('0 = unlimited', 'simple-product-bundles'); ?></span>
+                    <span class="field-hint"><?php esc_html_e('0 = unlimited', 'simple-product-bundles'); ?></span>
                 </div>
                 <div class="bundle-config-field">
-                    <label><?php _e('Default Quantity', 'simple-product-bundles'); ?></label>
+                    <label><?php esc_html_e('Default Quantity', 'simple-product-bundles'); ?></label>
                     <input type="number" name="bundle_items[<?php echo esc_attr($index); ?>][default_qty]" 
                            value="<?php echo esc_attr($default_qty); ?>" min="0" step="1">
-                    <span class="field-hint"><?php _e('Pre-selected qty', 'simple-product-bundles'); ?></span>
+                    <span class="field-hint"><?php esc_html_e('Pre-selected qty', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
             
@@ -188,12 +191,12 @@ class Simple_Product_Bundles_Admin {
             <div class="bundle-volume-discounts">
                 <div class="volume-discounts-header">
                     <span class="volume-discounts-icon"></span>
-                    <span class="volume-discounts-title"><?php _e('Volume Discounts', 'simple-product-bundles'); ?></span>
-                    <button type="button" class="volume-discounts-toggle" aria-expanded="<?php echo !empty($volume_discounts) ? 'true' : 'false'; ?>">
+                    <span class="volume-discounts-title"><?php esc_html_e('Volume Discounts', 'simple-product-bundles'); ?></span>
+                    <button type="button" class="volume-discounts-toggle" aria-expanded="<?php echo !empty($volume_discounts) ? esc_attr('true') : esc_attr('false'); ?>">
                         <span class="toggle-indicator"></span>
                     </button>
                 </div>
-                <div class="volume-discounts-content" style="<?php echo empty($volume_discounts) ? 'display: none;' : ''; ?>">
+                <div class="volume-discounts-content" style="<?php echo empty($volume_discounts) ? esc_attr('display: none;') : ''; ?>">
                     <div class="volume-tiers-container" data-item-index="<?php echo esc_attr($index); ?>">
                         <?php 
                         if (!empty($volume_discounts)) {
@@ -205,10 +208,10 @@ class Simple_Product_Bundles_Admin {
                     </div>
                     <button type="button" class="button add-volume-tier">
                         <span class="dashicons dashicons-plus-alt2"></span>
-                        <?php _e('Add Tier', 'simple-product-bundles'); ?>
+                        <?php esc_html_e('Add Tier', 'simple-product-bundles'); ?>
                     </button>
                     <p class="volume-discounts-help">
-                        <?php _e('Set quantity thresholds with discounts (percentage or fixed amount per item). Higher quantities override lower tiers.', 'simple-product-bundles'); ?>
+                        <?php esc_html_e('Set quantity thresholds with discounts (percentage or fixed amount per item). Higher quantities override lower tiers.', 'simple-product-bundles'); ?>
                     </p>
                 </div>
             </div>
@@ -230,7 +233,7 @@ class Simple_Product_Bundles_Admin {
         ?>
         <div class="volume-tier-row" data-tier-index="<?php echo esc_attr($tier_index); ?>">
             <div class="tier-field tier-qty">
-                <label><?php _e('Buy', 'simple-product-bundles'); ?></label>
+                <label><?php esc_html_e('Buy', 'simple-product-bundles'); ?></label>
                 <input type="number" 
                        name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][min_qty]" 
                        value="<?php echo esc_attr($min_qty); ?>" 
@@ -238,23 +241,23 @@ class Simple_Product_Bundles_Admin {
                        step="1" 
                        placeholder="<?php esc_attr_e('qty', 'simple-product-bundles'); ?>"
                        class="tier-min-qty">
-                <span class="tier-label"><?php _e('or more', 'simple-product-bundles'); ?></span>
+                <span class="tier-label"><?php esc_html_e('or more', 'simple-product-bundles'); ?></span>
             </div>
             <div class="tier-arrow">→</div>
             <div class="tier-field tier-discount">
-                <label><?php _e('Get', 'simple-product-bundles'); ?></label>
+                <label><?php esc_html_e('Get', 'simple-product-bundles'); ?></label>
                 <div class="tier-discount-inputs">
                     <input type="number" 
                            name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount]" 
                            value="<?php echo esc_attr($discount); ?>" 
                            min="0" 
                            step="0.01" 
-                           placeholder="0"
+                           placeholder="<?php echo esc_attr('0'); ?>"
                            class="tier-discount-input">
                     <select name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount_type]" 
                             class="tier-discount-type">
-                        <option value="percentage" <?php selected($discount_type, 'percentage'); ?>><?php _e('% off', 'simple-product-bundles'); ?></option>
-                        <option value="fixed" <?php selected($discount_type, 'fixed'); ?>><?php echo get_woocommerce_currency_symbol() . ' ' . __('off', 'simple-product-bundles'); ?></option>
+                        <option value="percentage" <?php selected($discount_type, 'percentage'); ?>><?php esc_html_e('% off', 'simple-product-bundles'); ?></option>
+                        <option value="fixed" <?php selected($discount_type, 'fixed'); ?>><?php echo esc_html(get_woocommerce_currency_symbol() . ' ' . __('off', 'simple-product-bundles')); ?></option>
                     </select>
                 </div>
             </div>
@@ -271,26 +274,49 @@ class Simple_Product_Bundles_Admin {
      * @param int $post_id Post ID
      */
     public function save_bundle_data($post_id) {
+        // Check if this is an autosave
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        // Check user permissions
+        if (!current_user_can('edit_product', $post_id)) {
+            return;
+        }
+        
+        // Verify nonce
+        if (!isset($_POST['bundle_data_nonce']) || !wp_verify_nonce($_POST['bundle_data_nonce'], 'save_bundle_data')) {
+            return;
+        }
+        
+        // Sanitize and save bundle items
         if (isset($_POST['bundle_items']) && is_array($_POST['bundle_items'])) {
             $bundle_items = [];
             foreach ($_POST['bundle_items'] as $item) {
-                if (!empty($item['product_id'])) {
+                // Sanitize only scalar values, preserve nested arrays
+                $product_id = isset($item['product_id']) ? absint($item['product_id']) : 0;
+                
+                if (!empty($product_id)) {
                     $bundle_item = [
-                        'product_id'  => absint($item['product_id']),
-                        'min_qty'     => absint($item['min_qty']),
-                        'max_qty'     => absint($item['max_qty']),
-                        'default_qty' => absint($item['default_qty']),
+                        'product_id'  => $product_id,
+                        'min_qty'     => isset($item['min_qty']) ? absint($item['min_qty']) : 0,
+                        'max_qty'     => isset($item['max_qty']) ? absint($item['max_qty']) : 0,
+                        'default_qty' => isset($item['default_qty']) ? absint($item['default_qty']) : 0,
                         'volume_discounts' => [],
                     ];
                     
-                    // Process volume discounts
+                    // Process volume discounts (preserve nested array structure)
                     if (!empty($item['volume_discounts']) && is_array($item['volume_discounts'])) {
                         $volume_discounts = [];
                         foreach ($item['volume_discounts'] as $tier) {
+                            if (!is_array($tier)) {
+                                continue;
+                            }
+                            
                             $tier_min_qty = isset($tier['min_qty']) ? absint($tier['min_qty']) : 0;
-                            $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
-                            $tier_discount_type = isset($tier['discount_type']) && in_array($tier['discount_type'], ['percentage', 'fixed']) 
-                                ? $tier['discount_type'] 
+                            $tier_discount = isset($tier['discount']) ? floatval(sanitize_text_field($tier['discount'])) : 0;
+                            $tier_discount_type = isset($tier['discount_type']) && in_array($tier['discount_type'], ['percentage', 'fixed'], true) 
+                                ? sanitize_text_field($tier['discount_type']) 
                                 : 'percentage';
                             
                             // Only save valid tiers (min_qty > 0 and discount > 0)
@@ -324,12 +350,16 @@ class Simple_Product_Bundles_Admin {
             delete_post_meta($post_id, '_bundle_items');
         }
         
+        // Sanitize and save bundle discount
         if (isset($_POST['_bundle_discount'])) {
-            update_post_meta($post_id, '_bundle_discount', floatval($_POST['_bundle_discount']));
+            $discount = sanitize_text_field($_POST['_bundle_discount']);
+            $discount = floatval($discount);
+            $discount = max(0, min(100, $discount)); // Clamp between 0 and 100
+            update_post_meta($post_id, '_bundle_discount', $discount);
         }
         
         // Save bundle quantity toggle
-        $enable_bundle_qty = isset($_POST['_bundle_enable_qty']) ? 'yes' : 'no';
+        $enable_bundle_qty = isset($_POST['_bundle_enable_qty']) && 'yes' === sanitize_text_field($_POST['_bundle_enable_qty']) ? 'yes' : 'no';
         update_post_meta($post_id, '_bundle_enable_qty', $enable_bundle_qty);
     }
 
@@ -354,6 +384,7 @@ class Simple_Product_Bundles_Admin {
      */
     public function admin_custom_js() {
         global $post;
+        
         if (isset($post) && $post->post_type === 'product') : ?>
         <script type="text/javascript">
         jQuery(function($) {
