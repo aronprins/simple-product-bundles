@@ -1,0 +1,287 @@
+/* Simple Product Bundles - Admin Styles
+ * Designed to match WooCommerce native product data panels
+ */
+
+/* Panel styling */
+#bundle_items_data {
+    padding: 0 !important;
+}
+
+#bundle_items_data .options_group {
+    padding: 0;
+    margin: 0;
+}
+
+#bundle_items_data .options_group > p.form-field:first-child {
+    padding: 1em 1.5em;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+}
+
+#bundle_items_data .options_group > p.form-field:first-child label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #23282d;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+
+/* Bundle items container */
+#bundle_items_container {
+    padding: 0;
+}
+
+/* Empty state */
+#bundle_items_container:empty::after {
+    content: "No products added to bundle yet. Click the button below to add products.";
+    display: block;
+    padding: 2em 1.5em;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+}
+
+/* Individual bundle item - WooCommerce variation style */
+.bundle-item-row {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    transition: background-color 0.15s ease;
+}
+
+.bundle-item-row:hover {
+    background: #f9f9f9;
+}
+
+.bundle-item-row:last-child {
+    border-bottom: none;
+}
+
+/* Item header with drag handle and product select */
+.bundle-item-row .bundle-item-header {
+    display: flex;
+    align-items: center;
+    padding: 1em 1.5em;
+    gap: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.bundle-item-row .bundle-item-handle {
+    cursor: move;
+    color: #999;
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.bundle-item-row .bundle-item-handle::before {
+    content: "\f333";
+    font-family: dashicons;
+    display: block;
+}
+
+.bundle-item-row .bundle-item-handle:hover {
+    color: #666;
+}
+
+.bundle-item-row .bundle-product-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.bundle-item-row .remove-bundle-item {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: #a00;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 16px;
+    border-radius: 3px;
+    transition: all 0.15s ease;
+}
+
+.bundle-item-row .remove-bundle-item:hover {
+    background: #a00;
+    color: #fff;
+}
+
+.bundle-item-row .remove-bundle-item::before {
+    content: "\f153";
+    font-family: dashicons;
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+/* Item configuration fields */
+.bundle-item-row .bundle-item-config {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding: 0;
+}
+
+.bundle-item-row .bundle-config-field {
+    padding: 1em 1.5em;
+    border-right: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bundle-item-row .bundle-config-field:last-child {
+    border-right: none;
+}
+
+.bundle-item-row .bundle-config-field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    font-weight: 600;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+
+.bundle-item-row .bundle-config-field input[type="number"] {
+    width: 100% !important;
+    max-width: 120px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bundle-item-row .bundle-config-field input[type="number"]:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+.bundle-item-row .bundle-config-field .field-hint {
+    font-size: 11px;
+    color: #888;
+    margin: 0;
+}
+
+/* Add product button area */
+#bundle_items_data .bundle-actions {
+    padding: 1em 1.5em;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+#add_bundle_item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#add_bundle_item::before {
+    content: "\f132";
+    font-family: dashicons;
+    font-size: 16px;
+}
+
+/* Discount field */
+#bundle_items_data .bundle-discount-field {
+    padding: 1.5em;
+    background: #fff;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+#bundle_items_data .bundle-discount-field label {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: #23282d;
+    padding-top: 6px;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+
+#bundle_items_data .bundle-discount-field .discount-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#bundle_items_data .bundle-discount-field input[type="number"] {
+    width: 80px !important;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+#bundle_items_data .bundle-discount-field .discount-suffix {
+    color: #666;
+    font-weight: 600;
+}
+
+#bundle_items_data .bundle-discount-field .description {
+    color: #666;
+    font-size: 12px;
+    margin-left: 8px;
+    padding-top: 8px;
+}
+
+/* Tab icon */
+#woocommerce-product-data ul.wc-tabs li.bundle_items_options a::before {
+    content: "\f481";
+    font-family: dashicons;
+}
+
+/* Sortable placeholder */
+#bundle_items_container .ui-sortable-placeholder {
+    background: #e5f5fa;
+    border: 2px dashed #007cba;
+    visibility: visible !important;
+    height: auto;
+    min-height: 80px;
+}
+
+/* Select2 improvements */
+.bundle-item-row .select2-container {
+    width: 100% !important;
+}
+
+.bundle-item-row .select2-container--default .select2-selection--single {
+    height: 36px;
+    border-color: #ddd;
+}
+
+.bundle-item-row .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 34px;
+    padding-left: 12px;
+}
+
+.bundle-item-row .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 34px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .bundle-item-row .bundle-item-config {
+        grid-template-columns: 1fr;
+    }
+    
+    .bundle-item-row .bundle-config-field {
+        border-right: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .bundle-item-row .bundle-config-field:last-child {
+        border-bottom: none;
+    }
+}
