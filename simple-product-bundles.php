@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Simple Product Bundles
- * Description: Create product bundles with configurable min/max quantities for each bundled item
+ * Plugin Name: Simple Product Bundles for WooCommerce
+ * Description: Create flexible product bundles with configurable quantities, volume discounts, and bundle-wide pricing for your WooCommerce store.
  * Version: 1.0.0
  * Author: Aron & Sharon
  * Author URI: https://aronandsharon.com
