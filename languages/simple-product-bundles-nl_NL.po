@@ -58,6 +58,14 @@ msgid "Allow customers to order multiple bundles at once"
 msgstr "Klanten toestaan meerdere bundels tegelijk te bestellen"
 
 #: includes/class-simple-product-bundles-admin.php
+msgid "Hide product images"
+msgstr "Productafbeeldingen verbergen"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Hide bundled product thumbnails on the product page"
+msgstr "Verberg productminiaturen van gebundelde producten op de productpagina"
+
+#: includes/class-simple-product-bundles-admin.php
 msgid "Drag to reorder"
 msgstr "Sleep om te herschikken"
 

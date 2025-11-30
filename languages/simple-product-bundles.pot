@@ -55,6 +55,14 @@ msgid "Allow customers to order multiple bundles at once"
 msgstr ""
 
 #: includes/class-simple-product-bundles-admin.php
+msgid "Hide product images"
+msgstr ""
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Hide bundled product thumbnails on the product page"
+msgstr ""
+
+#: includes/class-simple-product-bundles-admin.php
 msgid "Drag to reorder"
 msgstr ""
 
