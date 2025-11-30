@@ -1,0 +1,231 @@
+# Spanish translation for Simple Product Bundles
+# Copyright (C) 2024 Aron & Sharon
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple Product Bundles 1.0.0\n"
+"Report-Msgid-Bugs-To: https://aronandsharon.com\n"
+"POT-Creation-Date: 2024-01-01T00:00:00+00:00\n"
+"PO-Revision-Date: 2024-01-01T00:00:00+00:00\n"
+"Last-Translator: Aron & Sharon <info@aronandsharon.com>\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4\n"
+"X-Domain: simple-product-bundles\n"
+
+#. Plugin Name of the plugin
+msgid "Simple Product Bundles"
+msgstr "Paquetes de Productos Simples"
+
+#. Description of the plugin
+msgid "Create product bundles with configurable min/max quantities for each bundled item"
+msgstr "Crea paquetes de productos con cantidades mín/máx configurables para cada artículo incluido"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Product Bundle"
+msgstr "Paquete de Productos"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Bundle Items"
+msgstr "Artículos del Paquete"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Bundled Products"
+msgstr "Productos Agrupados"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Add Product"
+msgstr "Añadir Producto"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Bundle Discount"
+msgstr "Descuento del Paquete"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Applied to the total bundle price"
+msgstr "Aplicado al precio total del paquete"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Enable bundle quantity selector"
+msgstr "Activar selector de cantidad del paquete"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Allow customers to order multiple bundles at once"
+msgstr "Permitir a los clientes pedir varios paquetes a la vez"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Drag to reorder"
+msgstr "Arrastra para reordenar"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Search for a product..."
+msgstr "Buscar un producto..."
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Remove"
+msgstr "Eliminar"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Min Quantity"
+msgstr "Cantidad Mín"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "0 = optional"
+msgstr "0 = opcional"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Max Quantity"
+msgstr "Cantidad Máx"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "0 = unlimited"
+msgstr "0 = ilimitado"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Default Quantity"
+msgstr "Cantidad Predeterminada"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Pre-selected qty"
+msgstr "Cantidad preseleccionada"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Volume Discounts"
+msgstr "Descuentos por Volumen"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Buy"
+msgstr "Compra"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "qty"
+msgstr "uds"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "or more"
+msgstr "o más"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Get"
+msgstr "Obtén"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "% off"
+msgstr "% de descuento"
+
+#: includes/class-simple-product-bundles-admin.php includes/class-simple-product-bundles-cart.php includes/class-simple-product-bundles-frontend.php
+msgid "off"
+msgstr "de descuento"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Remove tier"
+msgstr "Eliminar nivel"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Add Tier"
+msgstr "Añadir Nivel"
+
+#: includes/class-simple-product-bundles-admin.php
+msgid "Set quantity thresholds with discounts (percentage or fixed amount per item). Higher quantities override lower tiers."
+msgstr "Establece umbrales de cantidad con descuentos (porcentaje o cantidad fija por artículo). Las cantidades mayores anulan los niveles inferiores."
+
+#: includes/class-simple-product-bundles-frontend.php includes/class-simple-product-bundles-cart.php
+msgid "This bundle has no products configured."
+msgstr "Este paquete no tiene productos configurados."
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Bundle Contents"
+msgstr "Contenido del Paquete"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "each"
+msgstr "cada uno"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Volume Deals:"
+msgstr "Ofertas por Volumen:"
+
+#. translators: %d: minimum quantity, %s: discount amount
+#: includes/class-simple-product-bundles-frontend.php
+msgid "%d+ = %s off each"
+msgstr "%d+ = %s de descuento cada uno"
+
+#. translators: %d: minimum quantity, %s: discount percentage
+#: includes/class-simple-product-bundles-frontend.php
+msgid "%d+ = %s%% off"
+msgstr "%d+ = %s%% de descuento"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Decrease quantity"
+msgstr "Disminuir cantidad"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Quantity"
+msgstr "Cantidad"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Increase quantity"
+msgstr "Aumentar cantidad"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Optional"
+msgstr "Opcional"
+
+#. translators: %d: maximum quantity
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Up to %d"
+msgstr "Hasta %d"
+
+#. translators: %d: minimum quantity
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Min %d"
+msgstr "Mín %d"
+
+#. translators: %1$d: minimum quantity, %2$d: maximum quantity
+#: includes/class-simple-product-bundles-frontend.php
+msgid "%1$d–%2$d qty"
+msgstr "%1$d–%2$d uds"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: includes/class-simple-product-bundles-frontend.php includes/class-simple-product-bundles-cart.php
+msgid "Volume Savings"
+msgstr "Ahorro por Volumen"
+
+#. translators: %s: discount percentage
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Bundle Discount (%s%%)"
+msgstr "Descuento del Paquete (%s%%)"
+
+#: includes/class-simple-product-bundles-frontend.php
+msgid "Total"
+msgstr "Total"
+
+#: includes/class-simple-product-bundles-cart.php
+msgid "Security check failed. Please try again."
+msgstr "Falló la verificación de seguridad. Por favor, inténtalo de nuevo."
+
+#: includes/class-simple-product-bundles-cart.php
+msgid "Please configure bundle quantities."
+msgstr "Por favor, configura las cantidades del paquete."
+
+#. translators: %1$s: product name, %2$d: minimum quantity
+#: includes/class-simple-product-bundles-cart.php
+msgid "Quantity for \"%s\" must be at least %d."
+msgstr "La cantidad para \"%s\" debe ser al menos %d."
+
+#. translators: %1$s: product name, %2$d: maximum quantity
+#: includes/class-simple-product-bundles-cart.php
+msgid "Quantity for \"%s\" cannot exceed %d."
+msgstr "La cantidad para \"%s\" no puede superar %d."
+
+#: includes/class-simple-product-bundles-cart.php
+msgid "off each"
+msgstr "de descuento cada uno"
+

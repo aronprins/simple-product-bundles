@@ -7,6 +7,8 @@
  * Author URI: https://aronandsharon.com
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: simple-product-bundles
+ * Domain Path: /languages
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * WC requires at least: 5.0
@@ -21,6 +23,7 @@ if (!defined('ABSPATH')) {
 define('SIMPLE_PRODUCT_BUNDLES_VERSION', '1.0.0');
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_URL', plugin_dir_url(__FILE__));
+
 
 /**
  * Main plugin class
@@ -120,6 +123,9 @@ add_action('plugins_loaded', function() {
     if (!class_exists('WooCommerce')) {
         return;
     }
+    
+    // Load plugin text domain for translations (must be before initializing classes)
+    load_plugin_textdomain('simple-product-bundles', false, dirname(plugin_basename(__FILE__)) . '/languages');
     
     Simple_Product_Bundles::get_instance();
 });
