@@ -236,6 +236,38 @@
     padding-top: 8px;
 }
 
+/* Bundle quantity toggle field */
+#bundle_items_data .bundle-qty-toggle-field {
+    padding: 1.5em;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#bundle_items_data .bundle-qty-toggle-field label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #23282d;
+    cursor: pointer;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+
+#bundle_items_data .bundle-qty-toggle-field input[type="checkbox"] {
+    margin: 0;
+}
+
+#bundle_items_data .bundle-qty-toggle-field .description {
+    color: #666;
+    font-size: 12px;
+    margin-left: 24px;
+}
+
 /* Tab icon */
 #woocommerce-product-data ul.wc-tabs li.bundle_items_options a::before {
     content: "\f481";

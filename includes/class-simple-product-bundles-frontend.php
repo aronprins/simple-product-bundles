@@ -50,11 +50,15 @@ class Simple_Product_Bundles_Frontend {
         
         echo '<div class="bundle-add-to-cart">';
         
-        woocommerce_quantity_input([
-            'min_value'   => 1,
-            'max_value'   => $product->get_max_purchase_quantity(),
-            'input_value' => 1,
-        ]);
+        // Check if bundle quantity selector is enabled
+        $enable_bundle_qty = get_post_meta($product->get_id(), '_bundle_enable_qty', true);
+        if ($enable_bundle_qty === 'yes') {
+            woocommerce_quantity_input([
+                'min_value'   => 1,
+                'max_value'   => $product->get_max_purchase_quantity(),
+                'input_value' => 1,
+            ]);
+        }
         
         echo '<button type="submit" name="add-to-cart" value="' . esc_attr($product->get_id()) . '" class="single_add_to_cart_button button alt wp-element-button">' . esc_html($product->single_add_to_cart_text()) . '</button>';
         

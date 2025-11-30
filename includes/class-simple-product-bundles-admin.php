@@ -75,6 +75,7 @@ class Simple_Product_Bundles_Admin {
             $bundle_items = [];
         }
         $discount = get_post_meta($post->ID, '_bundle_discount', true);
+        $enable_bundle_qty = get_post_meta($post->ID, '_bundle_enable_qty', true);
         ?>
         <div id="bundle_items_data" class="panel woocommerce_options_panel hidden">
             <div class="options_group">
@@ -107,6 +108,15 @@ class Simple_Product_Bundles_Admin {
                         <span class="discount-suffix">%</span>
                     </div>
                     <span class="description"><?php _e('Applied to the total bundle price', 'simple-product-bundles'); ?></span>
+                </div>
+                
+                <div class="bundle-qty-toggle-field">
+                    <label for="_bundle_enable_qty">
+                        <input type="checkbox" id="_bundle_enable_qty" name="_bundle_enable_qty" 
+                               value="yes" <?php checked($enable_bundle_qty, 'yes'); ?>>
+                        <?php _e('Enable bundle quantity selector', 'simple-product-bundles'); ?>
+                    </label>
+                    <span class="description"><?php _e('Allow customers to order multiple bundles at once', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
         </div>
@@ -198,6 +208,10 @@ class Simple_Product_Bundles_Admin {
         if (isset($_POST['_bundle_discount'])) {
             update_post_meta($post_id, '_bundle_discount', floatval($_POST['_bundle_discount']));
         }
+        
+        // Save bundle quantity toggle
+        $enable_bundle_qty = isset($_POST['_bundle_enable_qty']) ? 'yes' : 'no';
+        update_post_meta($post_id, '_bundle_enable_qty', $enable_bundle_qty);
     }
 
     /**
