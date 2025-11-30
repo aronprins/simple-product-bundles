@@ -23,6 +23,10 @@ class Simple_Product_Bundles_Cart {
         add_filter('woocommerce_get_item_data', [$this, 'display_bundle_cart_item_data'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [$this, 'add_bundle_order_item_meta'], 10, 4);
         
+        // Cart item price and subtotal display (high priority to run after other filters)
+        add_filter('woocommerce_cart_item_price', [$this, 'filter_bundle_cart_item_price'], 999, 3);
+        add_filter('woocommerce_cart_item_subtotal', [$this, 'filter_bundle_cart_item_subtotal'], 999, 3);
+        
         // Price calculation
         add_filter('woocommerce_product_get_price', [$this, 'get_bundle_price'], 10, 2);
         add_filter('woocommerce_product_get_regular_price', [$this, 'get_bundle_price'], 10, 2);
@@ -254,7 +258,7 @@ class Simple_Product_Bundles_Cart {
             
             $item_data[] = [
                 'key'   => __('Bundle Items', 'simple-product-bundles'),
-                'value' => esc_html(implode(', ', $items_display)),
+                'value' => wp_kses_post(implode(', ', $items_display)),
             ];
             
             // Show total volume savings if any
@@ -303,7 +307,7 @@ class Simple_Product_Bundles_Cart {
                 }
             }
             
-            $item->add_meta_data(__('Bundle Items', 'simple-product-bundles'), esc_html(implode(', ', $items_display)));
+            $item->add_meta_data(__('Bundle Items', 'simple-product-bundles'), wp_kses_post(implode(', ', $items_display)));
             
             // Add volume savings if any
             if (isset($values['bundle_volume_savings']) && $values['bundle_volume_savings'] > 0) {
@@ -376,15 +380,60 @@ class Simple_Product_Bundles_Cart {
             return;
         }
         
-        if (did_action('woocommerce_before_calculate_totals') >= 2) {
+        // Prevent infinite recursion during this specific call
+        static $running = false;
+        if ($running) {
             return;
         }
+        $running = true;
         
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             if (isset($cart_item['bundle_price'])) {
                 $cart_item['data']->set_price(floatval($cart_item['bundle_price']));
             }
         }
+        
+        $running = false;
+    }
+
+    /**
+     * Filter the cart item price display to show the correct bundle price
+     *
+     * @param string $price_html    Price HTML
+     * @param array  $cart_item     Cart item data
+     * @param string $cart_item_key Cart item key
+     * @return string
+     */
+    public function filter_bundle_cart_item_price($price_html, $cart_item, $cart_item_key) {
+        // Check if this is a bundle by looking for bundle_configuration (more reliable than product type)
+        if (!isset($cart_item['bundle_price']) || !isset($cart_item['bundle_configuration'])) {
+            return $price_html;
+        }
+        
+        $bundle_price = floatval($cart_item['bundle_price']);
+        
+        return wc_price($bundle_price);
+    }
+
+    /**
+     * Filter the cart item subtotal display to show the correct bundle subtotal
+     *
+     * @param string $subtotal_html Subtotal HTML
+     * @param array  $cart_item     Cart item data
+     * @param string $cart_item_key Cart item key
+     * @return string
+     */
+    public function filter_bundle_cart_item_subtotal($subtotal_html, $cart_item, $cart_item_key) {
+        // Check if this is a bundle by looking for bundle_configuration (more reliable than product type)
+        if (!isset($cart_item['bundle_price']) || !isset($cart_item['bundle_configuration'])) {
+            return $subtotal_html;
+        }
+        
+        $quantity = isset($cart_item['quantity']) ? intval($cart_item['quantity']) : 1;
+        $bundle_price = floatval($cart_item['bundle_price']);
+        $subtotal = $bundle_price * $quantity;
+        
+        return wc_price($subtotal);
     }
 }
 
