@@ -4,7 +4,7 @@ Tags: woocommerce, product bundles, bundle products, volume discounts, grouped p
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 WC requires at least: 5.0
 WC tested up to: 8.0
 License: GPLv2 or later
@@ -120,6 +120,11 @@ Absolutely! The plugin is translation-ready and includes translation files for G
 
 == Changelog ==
 
+= 1.1.0 =
+* New: Option to hide product images in bundle display
+* Improved: Bundle now displays below short description on product page
+* Updated: All translations for new strings
+
 = 1.0.0 =
 * Initial release
 * Custom bundle product type
@@ -131,6 +136,9 @@ Absolutely! The plugin is translation-ready and includes translation files for G
 * Multi-language support (DE, ES, FR, NL)
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+New option to hide product images and improved bundle positioning on product pages.
 
 = 1.0.0 =
 Initial release of Simple Product Bundles for WooCommerce.

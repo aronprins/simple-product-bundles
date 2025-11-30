@@ -1,3 +1,44 @@
+# 🚀 Simple Product Bundles v1.1.0
+
+**Display Improvements** – Better control over bundle appearance on product pages.
+
+---
+
+## ✨ What's New
+
+### 🖼️ Hide Product Images Option
+- New toggle in bundle configuration to **hide product thumbnails**
+- Perfect for text-focused bundle displays or compact layouts
+- Layout automatically adjusts when images are hidden
+
+### 📍 Improved Bundle Position
+- Bundle display now appears **below the short description**
+- More natural placement in the product page flow
+- Follows standard WooCommerce add-to-cart positioning
+
+### 🌍 Updated Translations
+- All new strings translated for:
+  - 🇩🇪 German (de_DE)
+  - 🇪🇸 Spanish (es_ES)
+  - 🇫🇷 French (fr_FR)
+  - 🇳🇱 Dutch (nl_NL)
+
+---
+
+## 🔧 How to Use
+
+1. Edit your bundle product
+2. Go to the **Bundle Items** tab
+3. Check **"Hide product images"** to remove thumbnails
+4. Save and view your streamlined bundle display
+
+---
+
+**Full Changelog**: https://github.com/aronprins/simple-product-bundles/compare/v1.0.0...v1.1.0
+
+---
+---
+
 # 🎉 Simple Product Bundles v1.0.0
 
 **Initial Release** – Create flexible product bundles with configurable quantities and volume discounts for WooCommerce.
