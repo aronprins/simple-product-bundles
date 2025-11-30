@@ -7,6 +7,75 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Simple wrapper class for bundled items to provide compatibility
+ * with plugins that expect SomewhereWarm's WC_Bundled_Item interface
+ */
+class Simple_Bundled_Item {
+    
+    private $product_id;
+    private $product;
+    private $min_qty;
+    private $max_qty;
+    private $bundled_item_id;
+    
+    public function __construct($item_data, $index = 0) {
+        $this->product_id = isset($item_data['product_id']) ? intval($item_data['product_id']) : 0;
+        $this->product = wc_get_product($this->product_id);
+        $this->min_qty = isset($item_data['min_qty']) ? intval($item_data['min_qty']) : 1;
+        $this->max_qty = isset($item_data['max_qty']) ? intval($item_data['max_qty']) : 1;
+        $this->bundled_item_id = $index;
+    }
+    
+    public function get_product() {
+        return $this->product;
+    }
+    
+    public function get_product_id() {
+        return $this->product_id;
+    }
+    
+    public function get_quantity() {
+        return $this->min_qty;
+    }
+    
+    public function get_quantity_min() {
+        return $this->min_qty;
+    }
+    
+    public function get_quantity_max() {
+        return $this->max_qty;
+    }
+    
+    public function get_bundled_item_id() {
+        return $this->bundled_item_id;
+    }
+    
+    public function is_optional() {
+        return false;
+    }
+    
+    public function is_priced_individually() {
+        return true;
+    }
+    
+    public function get_discount() {
+        return 0;
+    }
+    
+    public function get_price() {
+        return $this->product ? $this->product->get_price() : 0;
+    }
+    
+    public function get_regular_price() {
+        return $this->product ? $this->product->get_regular_price() : 0;
+    }
+    
+    public function get_sale_price() {
+        return $this->product ? $this->product->get_sale_price() : '';
+    }
+}
+
 class WC_Product_Bundle extends WC_Product {
     
     /**
@@ -40,8 +109,42 @@ class WC_Product_Bundle extends WC_Product {
         return get_post_meta($this->get_id(), '_bundle_items', true);
     }
     
+    /**
+     * Get bundled items as objects (SomewhereWarm compatibility)
+     * 
+     * This method provides compatibility with plugins that expect the
+     * SomewhereWarm WooCommerce Product Bundles API.
+     *
+     * @return array Array of Simple_Bundled_Item objects
+     */
+    public function get_bundled_items() {
+        $bundle_items = $this->get_bundle_items();
+        $bundled_items = array();
+        
+        if (empty($bundle_items) || !is_array($bundle_items)) {
+            return $bundled_items;
+        }
+        
+        foreach ($bundle_items as $index => $item_data) {
+            $bundled_items[] = new Simple_Bundled_Item($item_data, $index);
+        }
+        
+        return $bundled_items;
+    }
+    
     public function get_bundle_discount() {
         return floatval(get_post_meta($this->get_id(), '_bundle_discount', true));
+    }
+    
+    /**
+     * Check if bundle contains certain item types (SomewhereWarm compatibility)
+     * 
+     * @param string $what What to check for (e.g., 'subscriptions', 'nyp', 'optional', etc.)
+     * @return bool
+     */
+    public function contains($what) {
+        // Our simple bundle doesn't support these special item types
+        return false;
     }
     
     /**
