@@ -134,8 +134,16 @@ class Simple_Product_Bundles_Frontend {
                 foreach ($volume_discounts as $tier) {
                     $tier_min = intval($tier['min_qty']);
                     $tier_discount = floatval($tier['discount']);
-                    echo '<span class="volume-tier-badge" data-min-qty="' . esc_attr($tier_min) . '" data-discount="' . esc_attr($tier_discount) . '">';
-                    echo sprintf(__('%d+ = %s%% off', 'simple-product-bundles'), $tier_min, $tier_discount);
+                    $tier_type = isset($tier['discount_type']) ? $tier['discount_type'] : 'percentage';
+                    
+                    echo '<span class="volume-tier-badge" data-min-qty="' . esc_attr($tier_min) . '" data-discount="' . esc_attr($tier_discount) . '" data-discount-type="' . esc_attr($tier_type) . '">';
+                    
+                    if ($tier_type === 'fixed') {
+                        echo sprintf(__('%d+ = %s off each', 'simple-product-bundles'), $tier_min, wc_price($tier_discount));
+                    } else {
+                        echo sprintf(__('%d+ = %s%% off', 'simple-product-bundles'), $tier_min, $tier_discount);
+                    }
+                    
                     echo '</span>';
                 }
                 echo '</div>';
@@ -233,6 +241,7 @@ class Simple_Product_Bundles_Frontend {
                 'decimal_sep' => wc_get_price_decimal_separator(),
                 'decimals' => wc_get_price_decimals(),
                 'i18n_off' => __('off', 'simple-product-bundles'),
+                'i18n_each' => __('each', 'simple-product-bundles'),
             ]);
         }
     }

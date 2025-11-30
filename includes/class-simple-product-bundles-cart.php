@@ -99,26 +99,31 @@ class Simple_Product_Bundles_Cart {
      *
      * @param array $volume_discounts Volume discount tiers
      * @param int   $qty              Quantity
-     * @return float Discount percentage
+     * @return array Array with 'discount' value and 'type' (percentage|fixed)
      */
     private function get_volume_discount($volume_discounts, $qty) {
-        if (empty($volume_discounts) || !is_array($volume_discounts) || $qty <= 0) {
-            return 0;
-        }
+        $result = [
+            'discount' => 0,
+            'type'     => 'percentage',
+        ];
         
-        $applicable_discount = 0;
+        if (empty($volume_discounts) || !is_array($volume_discounts) || $qty <= 0) {
+            return $result;
+        }
         
         // Volume discounts should be sorted by min_qty ascending
         foreach ($volume_discounts as $tier) {
             $tier_min_qty = isset($tier['min_qty']) ? intval($tier['min_qty']) : 0;
             $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
+            $tier_type = isset($tier['discount_type']) ? $tier['discount_type'] : 'percentage';
             
             if ($qty >= $tier_min_qty) {
-                $applicable_discount = $tier_discount;
+                $result['discount'] = $tier_discount;
+                $result['type'] = $tier_type;
             }
         }
         
-        return $applicable_discount;
+        return $result;
     }
     
     /**
@@ -157,16 +162,27 @@ class Simple_Product_Bundles_Cart {
                         
                         // Apply volume discount for this item
                         $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
-                        $volume_discount_percent = $this->get_volume_discount($volume_discounts, $qty);
+                        $volume_discount_data = $this->get_volume_discount($volume_discounts, $qty);
+                        $volume_discount_value = $volume_discount_data['discount'];
+                        $volume_discount_type = $volume_discount_data['type'];
                         
-                        if ($volume_discount_percent > 0) {
-                            $volume_discount_amount = $item_subtotal * ($volume_discount_percent / 100);
+                        if ($volume_discount_value > 0) {
+                            // Calculate discount amount based on type
+                            if ($volume_discount_type === 'fixed') {
+                                // Fixed discount per item
+                                $volume_discount_amount = $volume_discount_value * $qty;
+                            } else {
+                                // Percentage discount
+                                $volume_discount_amount = $item_subtotal * ($volume_discount_value / 100);
+                            }
+                            
                             $item_subtotal = $item_subtotal - $volume_discount_amount;
                             $total_volume_savings += $volume_discount_amount;
                             
                             // Store volume discount info
                             $cart_item_data['bundle_volume_discounts'][$item['product_id']] = [
-                                'discount_percent' => $volume_discount_percent,
+                                'discount_value' => $volume_discount_value,
+                                'discount_type'  => $volume_discount_type,
                                 'discount_amount' => $volume_discount_amount,
                             ];
                         }
@@ -209,8 +225,15 @@ class Simple_Product_Bundles_Cart {
                     $item_text = $product->get_name() . ' × ' . $qty;
                     
                     // Add volume discount indicator
-                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_percent'] > 0) {
-                        $item_text .= ' (' . $volume_discounts[$product_id]['discount_percent'] . '% ' . __('off', 'simple-product-bundles') . ')';
+                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_value'] > 0) {
+                        $discount_type = $volume_discounts[$product_id]['discount_type'];
+                        $discount_value = $volume_discounts[$product_id]['discount_value'];
+                        
+                        if ($discount_type === 'fixed') {
+                            $item_text .= ' (' . wc_price($discount_value) . ' ' . __('off each', 'simple-product-bundles') . ')';
+                        } else {
+                            $item_text .= ' (' . $discount_value . '% ' . __('off', 'simple-product-bundles') . ')';
+                        }
                     }
                     
                     $items_display[] = $item_text;
@@ -253,8 +276,15 @@ class Simple_Product_Bundles_Cart {
                     $item_text = $product->get_name() . ' × ' . $qty;
                     
                     // Add volume discount indicator
-                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_percent'] > 0) {
-                        $item_text .= ' (' . $volume_discounts[$product_id]['discount_percent'] . '% ' . __('off', 'simple-product-bundles') . ')';
+                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_value'] > 0) {
+                        $discount_type = $volume_discounts[$product_id]['discount_type'];
+                        $discount_value = $volume_discounts[$product_id]['discount_value'];
+                        
+                        if ($discount_type === 'fixed') {
+                            $item_text .= ' (' . wc_price($discount_value) . ' ' . __('off each', 'simple-product-bundles') . ')';
+                        } else {
+                            $item_text .= ' (' . $discount_value . '% ' . __('off', 'simple-product-bundles') . ')';
+                        }
                     }
                     
                     $items_display[] = $item_text;
@@ -305,9 +335,13 @@ class Simple_Product_Bundles_Cart {
             
             // Apply volume discount if applicable
             $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
-            $volume_discount = $this->get_volume_discount($volume_discounts, $min_qty);
-            if ($volume_discount > 0) {
-                $item_total = $item_total * (1 - ($volume_discount / 100));
+            $volume_discount_data = $this->get_volume_discount($volume_discounts, $min_qty);
+            if ($volume_discount_data['discount'] > 0) {
+                if ($volume_discount_data['type'] === 'fixed') {
+                    $item_total = $item_total - ($volume_discount_data['discount'] * $min_qty);
+                } else {
+                    $item_total = $item_total * (1 - ($volume_discount_data['discount'] / 100));
+                }
             }
             
             $total += $item_total;

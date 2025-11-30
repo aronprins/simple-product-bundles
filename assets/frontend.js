@@ -40,13 +40,17 @@ jQuery(function($) {
     
     /**
      * Get applicable volume discount for a quantity
+     * Returns object with discount value and type (percentage or fixed)
      */
     function getVolumeDiscount(volumeDiscounts, qty) {
-        if (!volumeDiscounts || !volumeDiscounts.length || qty <= 0) {
-            return 0;
-        }
+        var result = {
+            discount: 0,
+            type: 'percentage'
+        };
         
-        var applicableDiscount = 0;
+        if (!volumeDiscounts || !volumeDiscounts.length || qty <= 0) {
+            return result;
+        }
         
         // Volume discounts should be sorted by min_qty ascending
         // Find the highest tier that applies
@@ -54,13 +58,15 @@ jQuery(function($) {
             var tier = volumeDiscounts[i];
             var tierMinQty = parseInt(tier.min_qty) || 0;
             var tierDiscount = parseFloat(tier.discount) || 0;
+            var tierType = tier.discount_type || 'percentage';
             
             if (qty >= tierMinQty) {
-                applicableDiscount = tierDiscount;
+                result.discount = tierDiscount;
+                result.type = tierType;
             }
         }
         
-        return applicableDiscount;
+        return result;
     }
     
     /**
@@ -129,8 +135,22 @@ jQuery(function($) {
             }
             
             var rowSubtotalBeforeDiscount = price * qty;
-            var volumeDiscountPercent = getVolumeDiscount(volumeDiscounts, qty);
-            var volumeDiscountAmount = rowSubtotalBeforeDiscount * (volumeDiscountPercent / 100);
+            var volumeDiscountData = getVolumeDiscount(volumeDiscounts, qty);
+            var volumeDiscountValue = volumeDiscountData.discount;
+            var volumeDiscountType = volumeDiscountData.type;
+            var volumeDiscountAmount = 0;
+            
+            // Calculate discount amount based on type
+            if (volumeDiscountValue > 0) {
+                if (volumeDiscountType === 'fixed') {
+                    // Fixed discount per item
+                    volumeDiscountAmount = volumeDiscountValue * qty;
+                } else {
+                    // Percentage discount
+                    volumeDiscountAmount = rowSubtotalBeforeDiscount * (volumeDiscountValue / 100);
+                }
+            }
+            
             var rowSubtotalAfterDiscount = rowSubtotalBeforeDiscount - volumeDiscountAmount;
             
             subtotalBeforeVolume += rowSubtotalBeforeDiscount;
@@ -138,8 +158,11 @@ jQuery(function($) {
             totalVolumeSavings += volumeDiscountAmount;
             
             // Store volume discount data for cart
-            if (volumeDiscountPercent > 0) {
-                volumeDiscountsApplied[productId] = volumeDiscountPercent;
+            if (volumeDiscountValue > 0) {
+                volumeDiscountsApplied[productId] = {
+                    discount: volumeDiscountValue,
+                    type: volumeDiscountType
+                };
             }
             
             // Update row display
@@ -148,13 +171,19 @@ jQuery(function($) {
             
             $subtotalEl.data('subtotal', rowSubtotalAfterDiscount);
             
-            if (volumeDiscountPercent > 0 && qty > 0) {
+            if (volumeDiscountValue > 0 && qty > 0) {
                 // Show discounted price with strikethrough original
                 $subtotalEl.html(
                     '<span class="original-price">' + formatPrice(rowSubtotalBeforeDiscount) + '</span> ' +
                     '<span class="discounted-price">' + formatPrice(rowSubtotalAfterDiscount) + '</span>'
                 );
-                $savingsEl.html(volumeDiscountPercent + '% ' + params.i18n_off).show();
+                
+                // Show savings text based on discount type
+                if (volumeDiscountType === 'fixed') {
+                    $savingsEl.html(formatPrice(volumeDiscountValue) + ' ' + params.i18n_off + ' ' + params.i18n_each).show();
+                } else {
+                    $savingsEl.html(volumeDiscountValue + '% ' + params.i18n_off).show();
+                }
             } else {
                 $subtotalEl.html(formatPrice(rowSubtotalAfterDiscount));
                 $savingsEl.hide();

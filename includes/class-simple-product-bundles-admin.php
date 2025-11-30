@@ -208,7 +208,7 @@ class Simple_Product_Bundles_Admin {
                         <?php _e('Add Tier', 'simple-product-bundles'); ?>
                     </button>
                     <p class="volume-discounts-help">
-                        <?php _e('Set quantity thresholds with discount percentages. Higher quantities override lower tiers.', 'simple-product-bundles'); ?>
+                        <?php _e('Set quantity thresholds with discounts (percentage or fixed amount per item). Higher quantities override lower tiers.', 'simple-product-bundles'); ?>
                     </p>
                 </div>
             </div>
@@ -226,6 +226,7 @@ class Simple_Product_Bundles_Admin {
     private function render_volume_tier_row($item_index, $tier_index, $tier = []) {
         $min_qty = isset($tier['min_qty']) ? $tier['min_qty'] : '';
         $discount = isset($tier['discount']) ? $tier['discount'] : '';
+        $discount_type = isset($tier['discount_type']) ? $tier['discount_type'] : 'percentage';
         ?>
         <div class="volume-tier-row" data-tier-index="<?php echo esc_attr($tier_index); ?>">
             <div class="tier-field tier-qty">
@@ -242,15 +243,20 @@ class Simple_Product_Bundles_Admin {
             <div class="tier-arrow">→</div>
             <div class="tier-field tier-discount">
                 <label><?php _e('Get', 'simple-product-bundles'); ?></label>
-                <input type="number" 
-                       name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount]" 
-                       value="<?php echo esc_attr($discount); ?>" 
-                       min="0" 
-                       max="100" 
-                       step="0.01" 
-                       placeholder="0"
-                       class="tier-discount-input">
-                <span class="tier-label"><?php _e('% off', 'simple-product-bundles'); ?></span>
+                <div class="tier-discount-inputs">
+                    <input type="number" 
+                           name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount]" 
+                           value="<?php echo esc_attr($discount); ?>" 
+                           min="0" 
+                           step="0.01" 
+                           placeholder="0"
+                           class="tier-discount-input">
+                    <select name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount_type]" 
+                            class="tier-discount-type">
+                        <option value="percentage" <?php selected($discount_type, 'percentage'); ?>><?php _e('% off', 'simple-product-bundles'); ?></option>
+                        <option value="fixed" <?php selected($discount_type, 'fixed'); ?>><?php echo get_woocommerce_currency_symbol() . ' ' . __('off', 'simple-product-bundles'); ?></option>
+                    </select>
+                </div>
             </div>
             <button type="button" class="remove-volume-tier" title="<?php esc_attr_e('Remove tier', 'simple-product-bundles'); ?>">
                 <span class="dashicons dashicons-no-alt"></span>
@@ -283,12 +289,21 @@ class Simple_Product_Bundles_Admin {
                         foreach ($item['volume_discounts'] as $tier) {
                             $tier_min_qty = isset($tier['min_qty']) ? absint($tier['min_qty']) : 0;
                             $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
+                            $tier_discount_type = isset($tier['discount_type']) && in_array($tier['discount_type'], ['percentage', 'fixed']) 
+                                ? $tier['discount_type'] 
+                                : 'percentage';
                             
                             // Only save valid tiers (min_qty > 0 and discount > 0)
                             if ($tier_min_qty > 0 && $tier_discount > 0) {
+                                // For percentage, cap at 100. For fixed, just ensure positive.
+                                $discount_value = $tier_discount_type === 'percentage' 
+                                    ? min(100, max(0, $tier_discount)) 
+                                    : max(0, $tier_discount);
+                                    
                                 $volume_discounts[] = [
-                                    'min_qty'  => $tier_min_qty,
-                                    'discount' => min(100, max(0, $tier_discount)),
+                                    'min_qty'       => $tier_min_qty,
+                                    'discount'      => $discount_value,
+                                    'discount_type' => $tier_discount_type,
                                 ];
                             }
                         }
