@@ -97,6 +97,7 @@ class Simple_Product_Bundles_Frontend {
             $min_qty = intval($item['min_qty']);
             $max_qty = intval($item['max_qty']); // 0 = unlimited
             $default_qty = intval($item['default_qty']);
+            $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
             
             // Ensure default is within range (if max is 0/unlimited, only check min)
             $default_qty = max($min_qty, $default_qty);
@@ -106,7 +107,10 @@ class Simple_Product_Bundles_Frontend {
             
             $thumb_id = $bundled_product->get_image_id();
             
-            echo '<div class="bundle-item" data-product-id="' . esc_attr($item['product_id']) . '" data-price="' . esc_attr($price) . '">';
+            // Build volume discounts data attribute
+            $volume_discounts_json = !empty($volume_discounts) ? wp_json_encode($volume_discounts) : '[]';
+            
+            echo '<div class="bundle-item" data-product-id="' . esc_attr($item['product_id']) . '" data-price="' . esc_attr($price) . '" data-volume-discounts="' . esc_attr($volume_discounts_json) . '">';
             
             // Product image
             echo '<div class="bundle-item-image">';
@@ -121,6 +125,23 @@ class Simple_Product_Bundles_Frontend {
             echo '<div class="bundle-item-details">';
             echo '<h4 class="bundle-item-name">' . esc_html($bundled_product->get_name()) . '</h4>';
             echo '<p class="bundle-item-price">' . wc_price($price) . ' ' . __('each', 'simple-product-bundles') . '</p>';
+            
+            // Volume discount tiers display
+            if (!empty($volume_discounts)) {
+                echo '<div class="bundle-volume-tiers">';
+                echo '<div class="volume-tiers-label">' . __('Volume Deals:', 'simple-product-bundles') . '</div>';
+                echo '<div class="volume-tiers-badges">';
+                foreach ($volume_discounts as $tier) {
+                    $tier_min = intval($tier['min_qty']);
+                    $tier_discount = floatval($tier['discount']);
+                    echo '<span class="volume-tier-badge" data-min-qty="' . esc_attr($tier_min) . '" data-discount="' . esc_attr($tier_discount) . '">';
+                    echo sprintf(__('%d+ = %s%% off', 'simple-product-bundles'), $tier_min, $tier_discount);
+                    echo '</span>';
+                }
+                echo '</div>';
+                echo '</div>';
+            }
+            
             echo '</div>';
             
             // Quantity controls
@@ -152,8 +173,11 @@ class Simple_Product_Bundles_Frontend {
                 echo '<span class="bundle-qty-hint">' . sprintf(__('%d–%d qty', 'simple-product-bundles'), $min_qty, $max_qty) . '</span>';
             }
             
-            // Subtotal
+            // Subtotal with volume discount display
+            echo '<div class="bundle-item-pricing">';
             echo '<span class="bundle-item-subtotal" data-subtotal="' . esc_attr($price * $default_qty) . '">' . wc_price($price * $default_qty) . '</span>';
+            echo '<span class="bundle-item-savings" style="display: none;"></span>';
+            echo '</div>';
             echo '</div>';
             
             echo '</div>'; // .bundle-item
@@ -164,14 +188,21 @@ class Simple_Product_Bundles_Frontend {
         // Summary section
         echo '<div class="bundle-summary">';
         
+        // Always show subtotal row (for volume discounts)
+        echo '<div class="bundle-summary-row bundle-subtotal-row">';
+        echo '<span class="bundle-summary-label">' . __('Subtotal', 'simple-product-bundles') . '</span>';
+        echo '<span class="bundle-summary-value bundle-subtotal">' . wc_price(0) . '</span>';
+        echo '</div>';
+        
+        // Volume savings row (hidden by default)
+        echo '<div class="bundle-summary-row bundle-volume-savings-row" style="display: none;">';
+        echo '<span class="bundle-summary-label">' . __('Volume Savings', 'simple-product-bundles') . '</span>';
+        echo '<span class="bundle-summary-value bundle-volume-savings">−' . wc_price(0) . '</span>';
+        echo '</div>';
+        
         if ($discount > 0) {
-            echo '<div class="bundle-summary-row bundle-subtotal-row">';
-            echo '<span class="bundle-summary-label">' . __('Subtotal', 'simple-product-bundles') . '</span>';
-            echo '<span class="bundle-summary-value bundle-subtotal">' . wc_price(0) . '</span>';
-            echo '</div>';
-            
             echo '<div class="bundle-summary-row bundle-discount-row">';
-            echo '<span class="bundle-summary-label">' . sprintf(__('Discount (%s%%)', 'simple-product-bundles'), $discount) . '</span>';
+            echo '<span class="bundle-summary-label">' . sprintf(__('Bundle Discount (%s%%)', 'simple-product-bundles'), $discount) . '</span>';
             echo '<span class="bundle-summary-value bundle-discount">−' . wc_price(0) . '</span>';
             echo '</div>';
         }
@@ -184,6 +215,7 @@ class Simple_Product_Bundles_Frontend {
         echo '</div>'; // .bundle-summary
         
         echo '<input type="hidden" name="bundle_discount" value="' . esc_attr($discount) . '">';
+        echo '<input type="hidden" name="bundle_volume_discounts_data" value="">';
         echo '</div>'; // .bundle-items-wrapper
     }
 
@@ -200,6 +232,7 @@ class Simple_Product_Bundles_Frontend {
                 'thousand_sep' => wc_get_price_thousand_separator(),
                 'decimal_sep' => wc_get_price_decimal_separator(),
                 'decimals' => wc_get_price_decimals(),
+                'i18n_off' => __('off', 'simple-product-bundles'),
             ]);
         }
     }

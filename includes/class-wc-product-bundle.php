@@ -45,7 +45,33 @@ class WC_Product_Bundle extends WC_Product {
     }
     
     /**
-     * Get the min price based on minimum quantities
+     * Get applicable volume discount for a quantity
+     *
+     * @param array $volume_discounts Volume discount tiers
+     * @param int   $qty              Quantity
+     * @return float Discount percentage
+     */
+    private function get_volume_discount_for_qty($volume_discounts, $qty) {
+        if (empty($volume_discounts) || !is_array($volume_discounts) || $qty <= 0) {
+            return 0;
+        }
+        
+        $applicable_discount = 0;
+        
+        foreach ($volume_discounts as $tier) {
+            $tier_min_qty = isset($tier['min_qty']) ? intval($tier['min_qty']) : 0;
+            $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
+            
+            if ($qty >= $tier_min_qty) {
+                $applicable_discount = $tier_discount;
+            }
+        }
+        
+        return $applicable_discount;
+    }
+    
+    /**
+     * Get the min price based on minimum quantities (with volume discounts)
      */
     public function get_bundle_min_price() {
         $bundle_items = $this->get_bundle_items();
@@ -60,7 +86,17 @@ class WC_Product_Bundle extends WC_Product {
             $product = wc_get_product($item['product_id']);
             if (!$product) continue;
             
-            $total += $product->get_price() * intval($item['min_qty']);
+            $qty = intval($item['min_qty']);
+            $item_total = $product->get_price() * $qty;
+            
+            // Apply volume discount if applicable
+            $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
+            $volume_discount = $this->get_volume_discount_for_qty($volume_discounts, $qty);
+            if ($volume_discount > 0) {
+                $item_total = $item_total * (1 - ($volume_discount / 100));
+            }
+            
+            $total += $item_total;
         }
         
         if ($discount > 0) {
@@ -71,7 +107,7 @@ class WC_Product_Bundle extends WC_Product {
     }
     
     /**
-     * Get the max price based on maximum quantities
+     * Get the max price based on maximum quantities (with volume discounts)
      */
     public function get_bundle_max_price() {
         $bundle_items = $this->get_bundle_items();
@@ -86,7 +122,17 @@ class WC_Product_Bundle extends WC_Product {
             $product = wc_get_product($item['product_id']);
             if (!$product) continue;
             
-            $total += $product->get_price() * intval($item['max_qty']);
+            $qty = intval($item['max_qty']);
+            $item_total = $product->get_price() * $qty;
+            
+            // Apply volume discount if applicable
+            $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
+            $volume_discount = $this->get_volume_discount_for_qty($volume_discounts, $qty);
+            if ($volume_discount > 0) {
+                $item_total = $item_total * (1 - ($volume_discount / 100));
+            }
+            
+            $total += $item_total;
         }
         
         if ($discount > 0) {

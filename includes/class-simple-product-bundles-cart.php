@@ -95,6 +95,33 @@ class Simple_Product_Bundles_Cart {
     }
 
     /**
+     * Get applicable volume discount for a product quantity
+     *
+     * @param array $volume_discounts Volume discount tiers
+     * @param int   $qty              Quantity
+     * @return float Discount percentage
+     */
+    private function get_volume_discount($volume_discounts, $qty) {
+        if (empty($volume_discounts) || !is_array($volume_discounts) || $qty <= 0) {
+            return 0;
+        }
+        
+        $applicable_discount = 0;
+        
+        // Volume discounts should be sorted by min_qty ascending
+        foreach ($volume_discounts as $tier) {
+            $tier_min_qty = isset($tier['min_qty']) ? intval($tier['min_qty']) : 0;
+            $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
+            
+            if ($qty >= $tier_min_qty) {
+                $applicable_discount = $tier_discount;
+            }
+        }
+        
+        return $applicable_discount;
+    }
+    
+    /**
      * Add bundle cart item data
      *
      * @param array $cart_item_data Cart item data
@@ -111,26 +138,48 @@ class Simple_Product_Bundles_Cart {
         
         if (isset($_POST['bundle_qty']) && is_array($_POST['bundle_qty'])) {
             $cart_item_data['bundle_configuration'] = [];
+            $cart_item_data['bundle_volume_discounts'] = [];
             $bundle_items = get_post_meta($product_id, '_bundle_items', true);
             
             $bundle_total = 0;
+            $total_volume_savings = 0;
             
             foreach ($bundle_items as $item) {
                 $qty = isset($_POST['bundle_qty'][$item['product_id']]) ? intval($_POST['bundle_qty'][$item['product_id']]) : 0;
                 if ($qty > 0) {
                     $cart_item_data['bundle_configuration'][$item['product_id']] = $qty;
                     
-                    // Calculate price
+                    // Calculate price with volume discount
                     $bundled_product = wc_get_product($item['product_id']);
                     if ($bundled_product) {
-                        $bundle_total += floatval($bundled_product->get_price()) * $qty;
+                        $item_price = floatval($bundled_product->get_price());
+                        $item_subtotal = $item_price * $qty;
+                        
+                        // Apply volume discount for this item
+                        $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
+                        $volume_discount_percent = $this->get_volume_discount($volume_discounts, $qty);
+                        
+                        if ($volume_discount_percent > 0) {
+                            $volume_discount_amount = $item_subtotal * ($volume_discount_percent / 100);
+                            $item_subtotal = $item_subtotal - $volume_discount_amount;
+                            $total_volume_savings += $volume_discount_amount;
+                            
+                            // Store volume discount info
+                            $cart_item_data['bundle_volume_discounts'][$item['product_id']] = [
+                                'discount_percent' => $volume_discount_percent,
+                                'discount_amount' => $volume_discount_amount,
+                            ];
+                        }
+                        
+                        $bundle_total += $item_subtotal;
                     }
                 }
             }
             
             $cart_item_data['bundle_discount'] = isset($_POST['bundle_discount']) ? floatval($_POST['bundle_discount']) : 0;
+            $cart_item_data['bundle_volume_savings'] = $total_volume_savings;
             
-            // Apply discount
+            // Apply bundle discount (after volume discounts)
             if ($cart_item_data['bundle_discount'] > 0) {
                 $bundle_total = $bundle_total * (1 - ($cart_item_data['bundle_discount'] / 100));
             }
@@ -152,10 +201,19 @@ class Simple_Product_Bundles_Cart {
     public function display_bundle_cart_item_data($item_data, $cart_item) {
         if (isset($cart_item['bundle_configuration']) && !empty($cart_item['bundle_configuration'])) {
             $items_display = [];
+            $volume_discounts = isset($cart_item['bundle_volume_discounts']) ? $cart_item['bundle_volume_discounts'] : [];
+            
             foreach ($cart_item['bundle_configuration'] as $product_id => $qty) {
                 $product = wc_get_product($product_id);
                 if ($product) {
-                    $items_display[] = $product->get_name() . ' × ' . $qty;
+                    $item_text = $product->get_name() . ' × ' . $qty;
+                    
+                    // Add volume discount indicator
+                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_percent'] > 0) {
+                        $item_text .= ' (' . $volume_discounts[$product_id]['discount_percent'] . '% ' . __('off', 'simple-product-bundles') . ')';
+                    }
+                    
+                    $items_display[] = $item_text;
                 }
             }
             
@@ -163,6 +221,14 @@ class Simple_Product_Bundles_Cart {
                 'key'   => __('Bundle Items', 'simple-product-bundles'),
                 'value' => implode(', ', $items_display),
             ];
+            
+            // Show total volume savings if any
+            if (isset($cart_item['bundle_volume_savings']) && $cart_item['bundle_volume_savings'] > 0) {
+                $item_data[] = [
+                    'key'   => __('Volume Savings', 'simple-product-bundles'),
+                    'value' => wc_price($cart_item['bundle_volume_savings']),
+                ];
+            }
         }
         
         return $item_data;
@@ -179,14 +245,28 @@ class Simple_Product_Bundles_Cart {
     public function add_bundle_order_item_meta($item, $cart_item_key, $values, $order) {
         if (isset($values['bundle_configuration']) && !empty($values['bundle_configuration'])) {
             $items_display = [];
+            $volume_discounts = isset($values['bundle_volume_discounts']) ? $values['bundle_volume_discounts'] : [];
+            
             foreach ($values['bundle_configuration'] as $product_id => $qty) {
                 $product = wc_get_product($product_id);
                 if ($product) {
-                    $items_display[] = $product->get_name() . ' × ' . $qty;
+                    $item_text = $product->get_name() . ' × ' . $qty;
+                    
+                    // Add volume discount indicator
+                    if (isset($volume_discounts[$product_id]) && $volume_discounts[$product_id]['discount_percent'] > 0) {
+                        $item_text .= ' (' . $volume_discounts[$product_id]['discount_percent'] . '% ' . __('off', 'simple-product-bundles') . ')';
+                    }
+                    
+                    $items_display[] = $item_text;
                 }
             }
             
             $item->add_meta_data(__('Bundle Items', 'simple-product-bundles'), implode(', ', $items_display));
+            
+            // Add volume savings if any
+            if (isset($values['bundle_volume_savings']) && $values['bundle_volume_savings'] > 0) {
+                $item->add_meta_data(__('Volume Savings', 'simple-product-bundles'), wc_price($values['bundle_volume_savings']));
+            }
         }
     }
 
@@ -221,7 +301,16 @@ class Simple_Product_Bundles_Cart {
             if (!$bundled_product) continue;
             
             $min_qty = intval($item['min_qty']);
-            $total += $bundled_product->get_price() * $min_qty;
+            $item_total = $bundled_product->get_price() * $min_qty;
+            
+            // Apply volume discount if applicable
+            $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
+            $volume_discount = $this->get_volume_discount($volume_discounts, $min_qty);
+            if ($volume_discount > 0) {
+                $item_total = $item_total * (1 - ($volume_discount / 100));
+            }
+            
+            $total += $item_total;
         }
         
         if ($discount > 0) {

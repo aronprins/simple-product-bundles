@@ -2,6 +2,14 @@
  * Designed to match WooCommerce native product data panels
  */
 
+/* Override WooCommerce default label styles that use negative margins */
+#bundle_items_data label,
+#bundle_items_data legend {
+    float: none !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
 /* Panel styling */
 #bundle_items_data {
     padding: 0 !important;
@@ -23,9 +31,9 @@
     font-weight: 600;
     font-size: 13px;
     color: #23282d;
-    margin: 0;
-    float: none;
-    width: auto;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
 }
 
 /* Bundle items container */
@@ -145,9 +153,9 @@
     letter-spacing: 0.5px;
     color: #666;
     font-weight: 600;
-    margin: 0;
-    float: none;
-    width: auto;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
 }
 
 .bundle-item-row .bundle-config-field input[type="number"] {
@@ -206,9 +214,9 @@
     font-weight: 600;
     color: #23282d;
     padding-top: 6px;
-    margin: 0;
-    float: none;
-    width: auto;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
 }
 
 #bundle_items_data .bundle-discount-field .discount-input-wrap {
@@ -253,9 +261,9 @@
     font-weight: 600;
     color: #23282d;
     cursor: pointer;
-    margin: 0;
-    float: none;
-    width: auto;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
 }
 
 #bundle_items_data .bundle-qty-toggle-field input[type="checkbox"] {
@@ -302,6 +310,202 @@
     height: 34px;
 }
 
+/* ================================
+   Volume Discounts Section
+   ================================ */
+
+.bundle-volume-discounts {
+    border-top: 1px solid #eee;
+    background: linear-gradient(to bottom, #fafbfc, #f5f7f9);
+}
+
+.volume-discounts-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 1.5em;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.volume-discounts-header:hover {
+    background: rgba(0, 124, 186, 0.04);
+}
+
+.volume-discounts-icon::before {
+    content: "\f323";
+    font-family: dashicons;
+    font-size: 16px;
+    color: #007cba;
+}
+
+.volume-discounts-title {
+    font-weight: 600;
+    font-size: 12px;
+    color: #23282d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+}
+
+.volume-discounts-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.15s ease;
+}
+
+.volume-discounts-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.volume-discounts-toggle .toggle-indicator::before {
+    content: "\f140";
+    font-family: dashicons;
+    font-size: 18px;
+    color: #666;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.volume-discounts-toggle[aria-expanded="true"] .toggle-indicator::before {
+    transform: rotate(180deg);
+}
+
+.volume-discounts-content {
+    padding: 0 1.5em 1.5em;
+}
+
+/* Volume Tiers Container */
+.volume-tiers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.volume-tiers-container:empty {
+    display: none;
+}
+
+.volume-tiers-container:empty + .add-volume-tier {
+    margin-top: 0;
+}
+
+/* Individual Tier Row */
+.volume-tier-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.volume-tier-row:hover {
+    border-color: #007cba;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.1);
+}
+
+.tier-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tier-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
+}
+
+.tier-qty input,
+.tier-discount input {
+    width: 70px !important;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tier-qty input:focus,
+.tier-discount input:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.15);
+    outline: none;
+}
+
+.tier-label {
+    font-size: 13px;
+    color: #555;
+}
+
+.tier-arrow {
+    font-size: 18px;
+    color: #007cba;
+    font-weight: 300;
+    padding: 0 4px;
+}
+
+.remove-volume-tier {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    margin-left: auto;
+}
+
+.remove-volume-tier:hover {
+    opacity: 1;
+    color: #d63638;
+}
+
+.remove-volume-tier .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Add Tier Button */
+.add-volume-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    border-radius: 4px !important;
+    line-height: 1;
+}
+
+.add-volume-tier .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Help Text */
+.volume-discounts-help {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 782px) {
     .bundle-item-row .bundle-item-config {
@@ -315,5 +519,30 @@
     
     .bundle-item-row .bundle-config-field:last-child {
         border-bottom: none;
+    }
+    
+    .volume-tier-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .tier-arrow {
+        display: none;
+    }
+    
+    .tier-field {
+        flex: 1;
+        min-width: 140px;
+    }
+    
+    .remove-volume-tier {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+    }
+    
+    .volume-tier-row {
+        position: relative;
+        padding-right: 40px;
     }
 }

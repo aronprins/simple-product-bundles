@@ -124,6 +124,10 @@ class Simple_Product_Bundles_Admin {
         <script type="text/template" id="bundle_item_template">
             <?php $this->render_bundle_item_row('{{INDEX}}', []); ?>
         </script>
+        
+        <script type="text/template" id="volume_tier_template">
+            <?php $this->render_volume_tier_row('{{ITEM_INDEX}}', '{{TIER_INDEX}}', []); ?>
+        </script>
         <?php
     }
 
@@ -138,6 +142,7 @@ class Simple_Product_Bundles_Admin {
         $min_qty = isset($item['min_qty']) ? $item['min_qty'] : 1;
         $max_qty = isset($item['max_qty']) ? $item['max_qty'] : 10;
         $default_qty = isset($item['default_qty']) ? $item['default_qty'] : 1;
+        $volume_discounts = isset($item['volume_discounts']) ? $item['volume_discounts'] : [];
         ?>
         <div class="bundle-item-row" data-index="<?php echo esc_attr($index); ?>">
             <div class="bundle-item-header">
@@ -178,6 +183,78 @@ class Simple_Product_Bundles_Admin {
                     <span class="field-hint"><?php _e('Pre-selected qty', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
+            
+            <!-- Volume Discounts Section -->
+            <div class="bundle-volume-discounts">
+                <div class="volume-discounts-header">
+                    <span class="volume-discounts-icon"></span>
+                    <span class="volume-discounts-title"><?php _e('Volume Discounts', 'simple-product-bundles'); ?></span>
+                    <button type="button" class="volume-discounts-toggle" aria-expanded="<?php echo !empty($volume_discounts) ? 'true' : 'false'; ?>">
+                        <span class="toggle-indicator"></span>
+                    </button>
+                </div>
+                <div class="volume-discounts-content" style="<?php echo empty($volume_discounts) ? 'display: none;' : ''; ?>">
+                    <div class="volume-tiers-container" data-item-index="<?php echo esc_attr($index); ?>">
+                        <?php 
+                        if (!empty($volume_discounts)) {
+                            foreach ($volume_discounts as $tier_index => $tier) {
+                                $this->render_volume_tier_row($index, $tier_index, $tier);
+                            }
+                        }
+                        ?>
+                    </div>
+                    <button type="button" class="button add-volume-tier">
+                        <span class="dashicons dashicons-plus-alt2"></span>
+                        <?php _e('Add Tier', 'simple-product-bundles'); ?>
+                    </button>
+                    <p class="volume-discounts-help">
+                        <?php _e('Set quantity thresholds with discount percentages. Higher quantities override lower tiers.', 'simple-product-bundles'); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Render volume discount tier row
+     *
+     * @param int|string $item_index Item index
+     * @param int|string $tier_index Tier index
+     * @param array      $tier       Tier data
+     */
+    private function render_volume_tier_row($item_index, $tier_index, $tier = []) {
+        $min_qty = isset($tier['min_qty']) ? $tier['min_qty'] : '';
+        $discount = isset($tier['discount']) ? $tier['discount'] : '';
+        ?>
+        <div class="volume-tier-row" data-tier-index="<?php echo esc_attr($tier_index); ?>">
+            <div class="tier-field tier-qty">
+                <label><?php _e('Buy', 'simple-product-bundles'); ?></label>
+                <input type="number" 
+                       name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][min_qty]" 
+                       value="<?php echo esc_attr($min_qty); ?>" 
+                       min="1" 
+                       step="1" 
+                       placeholder="<?php esc_attr_e('qty', 'simple-product-bundles'); ?>"
+                       class="tier-min-qty">
+                <span class="tier-label"><?php _e('or more', 'simple-product-bundles'); ?></span>
+            </div>
+            <div class="tier-arrow">→</div>
+            <div class="tier-field tier-discount">
+                <label><?php _e('Get', 'simple-product-bundles'); ?></label>
+                <input type="number" 
+                       name="bundle_items[<?php echo esc_attr($item_index); ?>][volume_discounts][<?php echo esc_attr($tier_index); ?>][discount]" 
+                       value="<?php echo esc_attr($discount); ?>" 
+                       min="0" 
+                       max="100" 
+                       step="0.01" 
+                       placeholder="0"
+                       class="tier-discount-input">
+                <span class="tier-label"><?php _e('% off', 'simple-product-bundles'); ?></span>
+            </div>
+            <button type="button" class="remove-volume-tier" title="<?php esc_attr_e('Remove tier', 'simple-product-bundles'); ?>">
+                <span class="dashicons dashicons-no-alt"></span>
+            </button>
         </div>
         <?php
     }
@@ -192,12 +269,39 @@ class Simple_Product_Bundles_Admin {
             $bundle_items = [];
             foreach ($_POST['bundle_items'] as $item) {
                 if (!empty($item['product_id'])) {
-                    $bundle_items[] = [
+                    $bundle_item = [
                         'product_id'  => absint($item['product_id']),
                         'min_qty'     => absint($item['min_qty']),
                         'max_qty'     => absint($item['max_qty']),
                         'default_qty' => absint($item['default_qty']),
+                        'volume_discounts' => [],
                     ];
+                    
+                    // Process volume discounts
+                    if (!empty($item['volume_discounts']) && is_array($item['volume_discounts'])) {
+                        $volume_discounts = [];
+                        foreach ($item['volume_discounts'] as $tier) {
+                            $tier_min_qty = isset($tier['min_qty']) ? absint($tier['min_qty']) : 0;
+                            $tier_discount = isset($tier['discount']) ? floatval($tier['discount']) : 0;
+                            
+                            // Only save valid tiers (min_qty > 0 and discount > 0)
+                            if ($tier_min_qty > 0 && $tier_discount > 0) {
+                                $volume_discounts[] = [
+                                    'min_qty'  => $tier_min_qty,
+                                    'discount' => min(100, max(0, $tier_discount)),
+                                ];
+                            }
+                        }
+                        
+                        // Sort by min_qty ascending
+                        usort($volume_discounts, function($a, $b) {
+                            return $a['min_qty'] - $b['min_qty'];
+                        });
+                        
+                        $bundle_item['volume_discounts'] = $volume_discounts;
+                    }
+                    
+                    $bundle_items[] = $bundle_item;
                 }
             }
             update_post_meta($post_id, '_bundle_items', $bundle_items);

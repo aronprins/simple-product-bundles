@@ -61,6 +61,20 @@ jQuery(function($) {
         });
     }
     
+    /**
+     * Get next tier index for an item
+     */
+    function getNextTierIndex($container) {
+        var maxIndex = -1;
+        $container.find('.volume-tier-row').each(function() {
+            var index = parseInt($(this).data('tier-index')) || 0;
+            if (index > maxIndex) {
+                maxIndex = index;
+            }
+        });
+        return maxIndex + 1;
+    }
+    
     // Add new bundle item
     $('#add_bundle_item').on('click', function(e) {
         e.preventDefault();
@@ -90,6 +104,49 @@ jQuery(function($) {
         
         // Fade out and remove
         $row.slideUp(200, function() {
+            $(this).remove();
+        });
+    });
+    
+    // Toggle volume discounts section
+    $(document).on('click', '.volume-discounts-toggle, .volume-discounts-header', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $header = $(this).closest('.volume-discounts-header');
+        var $toggle = $header.find('.volume-discounts-toggle');
+        var $content = $header.siblings('.volume-discounts-content');
+        var isExpanded = $toggle.attr('aria-expanded') === 'true';
+        
+        $toggle.attr('aria-expanded', !isExpanded);
+        $content.slideToggle(200);
+    });
+    
+    // Add volume discount tier
+    $(document).on('click', '.add-volume-tier', function(e) {
+        e.preventDefault();
+        
+        var $container = $(this).siblings('.volume-tiers-container');
+        var itemIndex = $container.data('item-index');
+        var tierIndex = getNextTierIndex($container);
+        
+        var template = $('#volume_tier_template').html();
+        template = template.replace(/\{\{ITEM_INDEX\}\}/g, itemIndex);
+        template = template.replace(/\{\{TIER_INDEX\}\}/g, tierIndex);
+        
+        $container.append(template);
+        
+        // Focus the first input in the new tier
+        $container.find('.volume-tier-row').last().find('.tier-min-qty').focus();
+    });
+    
+    // Remove volume discount tier
+    $(document).on('click', '.remove-volume-tier', function(e) {
+        e.preventDefault();
+        
+        var $row = $(this).closest('.volume-tier-row');
+        
+        $row.slideUp(150, function() {
             $(this).remove();
         });
     });
