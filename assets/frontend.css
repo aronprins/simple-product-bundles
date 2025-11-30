@@ -396,6 +396,11 @@ input[name="bundle_discount"] {
     display: none;
 }
 
+/* Hide images variant */
+.bundle-hide-images .bundle-item {
+    grid-template-columns: 1fr auto;
+}
+
 /* Responsive - Mobile first refinements */
 @media (max-width: 600px) {
     .bundle-item {

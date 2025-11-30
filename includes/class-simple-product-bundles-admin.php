@@ -76,6 +76,7 @@ class Simple_Product_Bundles_Admin {
         }
         $discount = get_post_meta($post->ID, '_bundle_discount', true);
         $enable_bundle_qty = get_post_meta($post->ID, '_bundle_enable_qty', true);
+        $hide_images = get_post_meta($post->ID, '_bundle_hide_images', true);
         
         // Output nonce field for security
         wp_nonce_field('save_bundle_data', 'bundle_data_nonce');
@@ -120,6 +121,15 @@ class Simple_Product_Bundles_Admin {
                         <?php esc_html_e('Enable bundle quantity selector', 'simple-product-bundles'); ?>
                     </label>
                     <span class="description"><?php esc_html_e('Allow customers to order multiple bundles at once', 'simple-product-bundles'); ?></span>
+                </div>
+                
+                <div class="bundle-hide-images-field">
+                    <label for="_bundle_hide_images">
+                        <input type="checkbox" id="_bundle_hide_images" name="_bundle_hide_images" 
+                               value="yes" <?php checked($hide_images, 'yes'); ?>>
+                        <?php esc_html_e('Hide product images', 'simple-product-bundles'); ?>
+                    </label>
+                    <span class="description"><?php esc_html_e('Hide bundled product thumbnails on the product page', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
         </div>
@@ -361,6 +371,10 @@ class Simple_Product_Bundles_Admin {
         // Save bundle quantity toggle
         $enable_bundle_qty = isset($_POST['_bundle_enable_qty']) && 'yes' === sanitize_text_field($_POST['_bundle_enable_qty']) ? 'yes' : 'no';
         update_post_meta($post_id, '_bundle_enable_qty', $enable_bundle_qty);
+        
+        // Save hide images toggle
+        $hide_images = isset($_POST['_bundle_hide_images']) && 'yes' === sanitize_text_field($_POST['_bundle_hide_images']) ? 'yes' : 'no';
+        update_post_meta($post_id, '_bundle_hide_images', $hide_images);
     }
 
     /**

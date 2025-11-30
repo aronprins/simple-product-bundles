@@ -15,8 +15,8 @@ class Simple_Product_Bundles_Frontend {
      * Constructor
      */
     public function __construct() {
-        // Frontend: Replace add to cart form for bundle products
-        add_action('woocommerce_single_product_summary', [$this, 'bundle_add_to_cart_template'], 25);
+        // Frontend: Replace add to cart form for bundle products (priority 35 = after short description)
+        add_action('woocommerce_single_product_summary', [$this, 'bundle_add_to_cart_template'], 35);
         
         // Remove default add to cart for bundle products
         add_action('woocommerce_single_product_summary', [$this, 'remove_default_add_to_cart'], 1);
@@ -95,13 +95,18 @@ class Simple_Product_Bundles_Frontend {
         
         $bundle_items = get_post_meta($product->get_id(), '_bundle_items', true);
         $discount = floatval(get_post_meta($product->get_id(), '_bundle_discount', true));
+        $hide_images = get_post_meta($product->get_id(), '_bundle_hide_images', true) === 'yes';
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
             echo '<p class="bundle-empty-message">' . esc_html__('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
             return;
         }
         
-        echo '<div class="bundle-items-wrapper">';
+        $wrapper_class = 'bundle-items-wrapper';
+        if ($hide_images) {
+            $wrapper_class .= ' bundle-hide-images';
+        }
+        echo '<div class="' . esc_attr($wrapper_class) . '">';
         echo '<h3 class="bundle-heading">' . esc_html__('Bundle Contents', 'simple-product-bundles') . '</h3>';
         
         echo '<div class="bundle-items-list">';
@@ -129,14 +134,16 @@ class Simple_Product_Bundles_Frontend {
             
             echo '<div class="bundle-item" data-product-id="' . esc_attr($item['product_id']) . '" data-price="' . esc_attr($price) . '" data-volume-discounts="' . esc_attr($volume_discounts_json) . '">';
             
-            // Product image
-            echo '<div class="bundle-item-image">';
-            if ($thumb_id) {
-                echo wp_get_attachment_image($thumb_id, 'woocommerce_thumbnail');
-            } else {
-                echo wc_placeholder_img('woocommerce_thumbnail');
+            // Product image (conditionally displayed)
+            if (!$hide_images) {
+                echo '<div class="bundle-item-image">';
+                if ($thumb_id) {
+                    echo wp_get_attachment_image($thumb_id, 'woocommerce_thumbnail');
+                } else {
+                    echo wc_placeholder_img('woocommerce_thumbnail');
+                }
+                echo '</div>';
             }
-            echo '</div>';
             
             // Product details
             echo '<div class="bundle-item-details">';
