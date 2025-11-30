@@ -24,7 +24,6 @@ define('SIMPLE_PRODUCT_BUNDLES_VERSION', '1.0.0');
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-
 /**
  * Main plugin class
  */
