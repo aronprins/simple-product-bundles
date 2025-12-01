@@ -374,13 +374,8 @@
 
 .bundle-cart-form .single_add_to_cart_button {
     flex: 1;
-    height: 3rem;
     max-width: none;
-    font-size: clamp(0.875rem, 2vw, 1rem);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-transform: none;
-    border-radius: 0;
+    /* Allow theme to control button styling (font, colors, border-radius, etc.) */
 }
 
 /* Empty/error state */
