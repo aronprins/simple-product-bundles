@@ -222,7 +222,11 @@ jQuery(function($) {
             $('.bundle-discount').html('−' + formatPrice(bundleDiscountAmount));
         }
         
-        $('.bundle-total').html(formatPrice(total));
+        var totalHtml = formatPrice(total);
+        if (params.price_suffix) {
+            totalHtml += '<span class="bundle-price-suffix"> ' + params.price_suffix + '</span>';
+        }
+        $('.bundle-total').html(totalHtml);
     }
     
     /**

@@ -440,6 +440,14 @@ input[name="bundle_discount"] {
     }
 }
 
+/* Price suffix (e.g., "Excl. BTW") */
+.bundle-price-suffix {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: var(--bundle-text-muted);
+    margin-left: 0.25em;
+}
+
 /* Print styles */
 @media print {
     .bundle-qty-control,

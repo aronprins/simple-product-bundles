@@ -77,6 +77,7 @@ class Simple_Product_Bundles_Admin {
         $discount = get_post_meta($post->ID, '_bundle_discount', true);
         $enable_bundle_qty = get_post_meta($post->ID, '_bundle_enable_qty', true);
         $hide_images = get_post_meta($post->ID, '_bundle_hide_images', true);
+        $price_suffix = get_post_meta($post->ID, '_bundle_price_suffix', true);
         
         // Output nonce field for security
         wp_nonce_field('save_bundle_data', 'bundle_data_nonce');
@@ -130,6 +131,14 @@ class Simple_Product_Bundles_Admin {
                         <?php esc_html_e('Hide product images', 'simple-product-bundles'); ?>
                     </label>
                     <span class="description"><?php esc_html_e('Hide bundled product thumbnails on the product page', 'simple-product-bundles'); ?></span>
+                </div>
+                
+                <div class="bundle-price-suffix-field">
+                    <label for="_bundle_price_suffix"><?php esc_html_e('Price Suffix', 'simple-product-bundles'); ?></label>
+                    <input type="text" id="_bundle_price_suffix" name="_bundle_price_suffix" 
+                           value="<?php echo esc_attr($price_suffix); ?>" 
+                           placeholder="<?php esc_attr_e('e.g., Excl. BTW', 'simple-product-bundles'); ?>">
+                    <span class="description"><?php esc_html_e('Text displayed after prices (e.g., "Excl. BTW" or "Excl. VAT")', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
         </div>
@@ -375,6 +384,10 @@ class Simple_Product_Bundles_Admin {
         // Save hide images toggle
         $hide_images = isset($_POST['_bundle_hide_images']) && 'yes' === sanitize_text_field($_POST['_bundle_hide_images']) ? 'yes' : 'no';
         update_post_meta($post_id, '_bundle_hide_images', $hide_images);
+        
+        // Save price suffix
+        $price_suffix = isset($_POST['_bundle_price_suffix']) ? sanitize_text_field($_POST['_bundle_price_suffix']) : '';
+        update_post_meta($post_id, '_bundle_price_suffix', $price_suffix);
     }
 
     /**

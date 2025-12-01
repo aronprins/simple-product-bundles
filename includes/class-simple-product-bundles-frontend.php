@@ -26,13 +26,16 @@ class Simple_Product_Bundles_Frontend {
     }
     
     /**
-     * Remove default add to cart button for bundle products
+     * Remove default add to cart button and price for bundle products
      */
     public function remove_default_add_to_cart() {
         global $product;
         
         if ($product && $product->get_type() === 'bundle') {
+            // Remove default add to cart button
             remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+            // Remove default price display (bundle shows total in the summary section)
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_price', 10);
         }
     }
 
@@ -96,6 +99,7 @@ class Simple_Product_Bundles_Frontend {
         $bundle_items = get_post_meta($product->get_id(), '_bundle_items', true);
         $discount = floatval(get_post_meta($product->get_id(), '_bundle_discount', true));
         $hide_images = get_post_meta($product->get_id(), '_bundle_hide_images', true) === 'yes';
+        $price_suffix = get_post_meta($product->get_id(), '_bundle_price_suffix', true);
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
             echo '<p class="bundle-empty-message">' . esc_html__('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
@@ -279,7 +283,11 @@ class Simple_Product_Bundles_Frontend {
         
         echo '<div class="bundle-summary-row bundle-total-row">';
         echo '<span class="bundle-summary-label">' . esc_html__('Total', 'simple-product-bundles') . '</span>';
-        echo '<span class="bundle-summary-value bundle-total">' . wp_kses_post(wc_price(0)) . '</span>';
+        echo '<span class="bundle-summary-value bundle-total">' . wp_kses_post(wc_price(0));
+        if (!empty($price_suffix)) {
+            echo '<span class="bundle-price-suffix"> ' . esc_html($price_suffix) . '</span>';
+        }
+        echo '</span>';
         echo '</div>';
         
         echo '</div>'; // .bundle-summary
@@ -298,6 +306,15 @@ class Simple_Product_Bundles_Frontend {
      */
     public function frontend_scripts() {
         if (is_product()) {
+            $price_suffix = '';
+            $product_id = get_the_ID();
+            if ($product_id) {
+                $product = wc_get_product($product_id);
+                if ($product && $product->get_type() === 'bundle') {
+                    $price_suffix = get_post_meta($product_id, '_bundle_price_suffix', true);
+                }
+            }
+            
             wp_enqueue_style('simple-bundle-frontend', SIMPLE_PRODUCT_BUNDLES_PLUGIN_URL . 'assets/frontend.css', [], SIMPLE_PRODUCT_BUNDLES_VERSION);
             wp_enqueue_script('simple-bundle-frontend', SIMPLE_PRODUCT_BUNDLES_PLUGIN_URL . 'assets/frontend.js', ['jquery'], SIMPLE_PRODUCT_BUNDLES_VERSION, true);
             wp_localize_script('simple-bundle-frontend', 'simpleBundleParams', [
@@ -308,6 +325,7 @@ class Simple_Product_Bundles_Frontend {
                 'decimals' => wc_get_price_decimals(),
                 'i18n_off' => __('off', 'simple-product-bundles'),
                 'i18n_each' => __('each', 'simple-product-bundles'),
+                'price_suffix' => $price_suffix,
             ]);
         }
     }
