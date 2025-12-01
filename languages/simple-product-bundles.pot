@@ -154,14 +154,8 @@ msgstr ""
 msgid "Volume Deals:"
 msgstr ""
 
-#. translators: %d: minimum quantity, %s: discount amount
 #: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s off each"
-msgstr ""
-
-#. translators: %d: minimum quantity, %s: discount percentage
-#: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s%% off"
+msgid "per item"
 msgstr ""
 
 #: includes/class-simple-product-bundles-frontend.php

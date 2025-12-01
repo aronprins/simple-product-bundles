@@ -155,28 +155,39 @@ class Simple_Product_Bundles_Frontend {
                 echo '<div class="bundle-volume-tiers">';
                 echo '<div class="volume-tiers-label">' . esc_html__('Volume Deals:', 'simple-product-bundles') . '</div>';
                 echo '<div class="volume-tiers-badges">';
-                foreach ($volume_discounts as $tier) {
+                
+                // Sort tiers by min_qty to determine ranges
+                $sorted_tiers = $volume_discounts;
+                usort($sorted_tiers, function($a, $b) {
+                    return intval($a['min_qty']) - intval($b['min_qty']);
+                });
+                
+                $tier_count = count($sorted_tiers);
+                foreach ($sorted_tiers as $index => $tier) {
                     $tier_min = intval($tier['min_qty']);
                     $tier_discount = floatval($tier['discount']);
                     $tier_type = isset($tier['discount_type']) ? $tier['discount_type'] : 'percentage';
                     
+                    // Calculate the actual price per item after discount
+                    if ($tier_type === 'fixed') {
+                        $tier_price = $price - $tier_discount;
+                    } else {
+                        $tier_price = $price * (1 - ($tier_discount / 100));
+                    }
+                    $tier_price = max(0, $tier_price); // Ensure price doesn't go negative
+                    
+                    // Determine range end: next tier's min - 1, or "+" for last tier
+                    $is_last_tier = ($index === $tier_count - 1);
+                    if ($is_last_tier) {
+                        $range_text = $tier_min . '+';
+                    } else {
+                        $next_tier_min = intval($sorted_tiers[$index + 1]['min_qty']);
+                        $range_text = $tier_min . ' - ' . ($next_tier_min - 1);
+                    }
+                    
                     echo '<span class="volume-tier-badge" data-min-qty="' . esc_attr($tier_min) . '" data-discount="' . esc_attr($tier_discount) . '" data-discount-type="' . esc_attr($tier_type) . '">';
                     
-                    if ($tier_type === 'fixed') {
-                        echo sprintf(
-                            /* translators: %d: minimum quantity, %s: discount amount */
-                            __('%d+ = %s off each', 'simple-product-bundles'),
-                            esc_html($tier_min),
-                            wp_kses_post(wc_price($tier_discount))
-                        );
-                    } else {
-                        echo sprintf(
-                            /* translators: %d: minimum quantity, %s: discount percentage */
-                            __('%d+ = %s%% off', 'simple-product-bundles'),
-                            esc_html($tier_min),
-                            esc_html($tier_discount)
-                        );
-                    }
+                    echo esc_html($range_text) . ' =&nbsp;' . wp_kses_post(wc_price($tier_price)) . '&nbsp;' . esc_html__('per item', 'simple-product-bundles');
                     
                     echo '</span>';
                 }

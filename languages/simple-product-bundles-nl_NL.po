@@ -157,15 +157,9 @@ msgstr "per stuk"
 msgid "Volume Deals:"
 msgstr "Staffeldeals:"
 
-#. translators: %d: minimum quantity, %s: discount amount
 #: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s off each"
-msgstr "%d+ = %s korting per stuk"
-
-#. translators: %d: minimum quantity, %s: discount percentage
-#: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s%% off"
-msgstr "%d+ = %s%% korting"
+msgid "per item"
+msgstr "per stuk"
 
 #: includes/class-simple-product-bundles-frontend.php
 msgid "Decrease quantity"

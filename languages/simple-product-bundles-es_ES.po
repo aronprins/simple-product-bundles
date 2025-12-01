@@ -157,15 +157,9 @@ msgstr "cada uno"
 msgid "Volume Deals:"
 msgstr "Ofertas por Volumen:"
 
-#. translators: %d: minimum quantity, %s: discount amount
 #: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s off each"
-msgstr "%d+ = %s de descuento cada uno"
-
-#. translators: %d: minimum quantity, %s: discount percentage
-#: includes/class-simple-product-bundles-frontend.php
-msgid "%d+ = %s%% off"
-msgstr "%d+ = %s%% de descuento"
+msgid "per item"
+msgstr "por unidad"
 
 #: includes/class-simple-product-bundles-frontend.php
 msgid "Decrease quantity"
