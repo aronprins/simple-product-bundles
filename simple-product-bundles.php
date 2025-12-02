@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Product Bundles for WooCommerce
  * Description: Create flexible product bundles with configurable quantities, volume discounts, and bundle-wide pricing for your WooCommerce store.
- * Version: 1.1.2
+ * Version: 1.2.0
  * Author: Aron & Sharon
  * Author URI: https://aronandsharon.com
  * License: GPL-2.0+
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('SIMPLE_PRODUCT_BUNDLES_VERSION', '1.1.2');
+define('SIMPLE_PRODUCT_BUNDLES_VERSION', '1.2.0');
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SIMPLE_PRODUCT_BUNDLES_PLUGIN_URL', plugin_dir_url(__FILE__));
 

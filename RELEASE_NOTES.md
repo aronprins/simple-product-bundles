@@ -1,3 +1,66 @@
+# 🧾 Simple Product Bundles v1.2.0
+
+**Per-Product Tax Calculation** – Each bundled product now uses its own tax class for accurate VAT/tax calculations.
+
+---
+
+## ✨ What's New
+
+### 💶 Per-Product Tax Class Support
+- Each bundled product's **individual tax class** is now respected
+- No more "best match" tax class for the entire bundle
+- Accurate tax calculations for mixed-rate bundles (e.g., 21% + 9% BTW)
+- Uses WooCommerce's precision system for cent-accurate calculations
+
+### 📊 Collapsible Tax Breakdown
+- **Combined tax total** displayed as a single line (e.g., "BTW €166,95")
+- Click to **expand** and see per-product breakdown:
+  - Product name
+  - Subtotal amount
+  - Tax rate percentage
+  - Tax amount
+- Works with both **Classic Cart** and **WooCommerce Blocks Cart**
+- Hides default WooCommerce tax rows when breakdown is active
+
+### 🎨 Improved Cart Display
+- Seamless integration with WooCommerce Blocks cart via JavaScript
+- Classic cart uses proper table row structure
+- Smooth slide animation for expand/collapse
+- Accessible with proper ARIA attributes
+
+---
+
+## 🔧 How It Works
+
+**Example Bundle:**
+- Product A: €495 @ 21% tax class → €103.95 tax
+- Product B: €700 @ 9% tax class → €63.00 tax
+- **Total Tax: €166.95** (correctly calculated per product)
+
+**In Cart:**
+```
+BTW                    €166,95 ▼
+                       ┌─────────────────────────────┐
+                       │ Product A                   │
+                       │ €495,00 @ 21%    €103,95    │
+                       ├─────────────────────────────┤
+                       │ Product B                   │
+                       │ €700,00 @ 9%     €63,00     │
+                       └─────────────────────────────┘
+```
+
+---
+
+## 🐛 Bug Fixes
+- Fixed tax calculation using WooCommerce precision (cents) to avoid rounding errors
+
+---
+
+**Full Changelog**: https://github.com/aronprins/simple-product-bundles/compare/v1.1.2...v1.2.0
+
+---
+---
+
 # 🚀 Simple Product Bundles v1.1.0
 
 **Display Improvements** – Better control over bundle appearance on product pages.
