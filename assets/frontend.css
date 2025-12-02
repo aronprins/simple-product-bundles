@@ -454,3 +454,258 @@ input[name="bundle_discount"] {
         break-inside: avoid;
     }
 }
+
+/* ==========================================================================
+   Cart Tax Breakdown - Collapsible Display
+   ========================================================================== */
+
+.bundle-tax-collapsible {
+    display: flex;
+    flex-direction: column;
+}
+
+.bundle-tax-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.25rem 0;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    text-align: right;
+}
+
+.bundle-tax-toggle:hover {
+    opacity: 0.8;
+}
+
+.bundle-tax-toggle:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.bundle-tax-total {
+    font-weight: 600;
+}
+
+.bundle-tax-toggle-icon {
+    font-size: 0.65em;
+    transition: transform 0.2s ease;
+    opacity: 0.6;
+}
+
+.bundle-tax-toggle[aria-expanded="true"] .bundle-tax-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.bundle-tax-breakdown {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .bundle-tax-breakdown {
+        border-top-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.bundle-tax-breakdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bundle-tax-breakdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .bundle-tax-breakdown-item {
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.breakdown-product {
+    font-weight: 500;
+    color: inherit;
+}
+
+.breakdown-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: var(--bundle-text-muted, rgba(0, 0, 0, 0.6));
+}
+
+@media (prefers-color-scheme: dark) {
+    .breakdown-details {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.breakdown-subtotal {
+    opacity: 0.8;
+}
+
+.breakdown-rate {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.breakdown-tax {
+    font-weight: 600;
+    color: inherit;
+    margin-left: auto;
+}
+
+/* Animation for expand/collapse */
+.bundle-tax-breakdown {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.bundle-tax-breakdown[style*="display: none"] {
+    max-height: 0;
+    opacity: 0;
+}
+
+.bundle-tax-breakdown:not([style*="display: none"]) {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .bundle-tax-breakdown-item {
+        font-size: 0.8125rem;
+    }
+    
+    .breakdown-details {
+        font-size: 0.75rem;
+    }
+}
+
+/* ==========================================================================
+   WooCommerce Blocks Cart - Tax Breakdown
+   ========================================================================== */
+
+.bundle-tax-blocks-wrapper {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .bundle-tax-blocks-wrapper {
+        border-top-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    text-align: left;
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-label {
+    flex: 1;
+    font-weight: 400;
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-total {
+    font-weight: 600;
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-toggle-icon {
+    font-size: 0.7em;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-toggle[aria-expanded="true"] .bundle-tax-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-breakdown {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .bundle-tax-blocks-wrapper .bundle-tax-breakdown {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-breakdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.bundle-tax-blocks-wrapper .bundle-tax-breakdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .bundle-tax-blocks-wrapper .bundle-tax-breakdown-item {
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.bundle-tax-blocks-wrapper .breakdown-product {
+    font-weight: 500;
+}
+
+.bundle-tax-blocks-wrapper .breakdown-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    opacity: 0.7;
+}
+
+.bundle-tax-blocks-wrapper .breakdown-tax {
+    font-weight: 600;
+    opacity: 1;
+    margin-left: auto;
+}

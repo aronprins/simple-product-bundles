@@ -4,6 +4,136 @@
 jQuery(function($) {
     'use strict';
     
+    // =========================================================================
+    // Tax Breakdown Toggle (Cart & Checkout pages)
+    // =========================================================================
+    
+    function initTaxBreakdownToggle() {
+        $(document).on('click', '.bundle-tax-toggle', function(e) {
+            e.preventDefault();
+            
+            var $toggle = $(this);
+            var $breakdown = $toggle.siblings('.bundle-tax-breakdown');
+            var isExpanded = $toggle.attr('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                // Collapse
+                $toggle.attr('aria-expanded', 'false');
+                $breakdown.slideUp(200);
+            } else {
+                // Expand
+                $toggle.attr('aria-expanded', 'true');
+                $breakdown.slideDown(200);
+            }
+        });
+    }
+    
+    /**
+     * Render custom tax breakdown for WooCommerce Blocks cart
+     */
+    function renderBlocksCartTaxBreakdown() {
+        // Check if we have tax data from PHP
+        if (typeof window.simpleBundleTaxData === 'undefined' || !window.simpleBundleTaxData.breakdown || !window.simpleBundleTaxData.breakdown.length) {
+            return;
+        }
+        
+        var data = window.simpleBundleTaxData;
+        
+        // Find the WooCommerce Blocks cart totals area
+        // Try multiple selectors for different block versions
+        var $cartTotals = $('.wp-block-woocommerce-cart-totals-block, .wc-block-cart__totals-title').first().closest('.wc-block-cart__sidebar, .wp-block-woocommerce-cart-totals-block');
+        
+        if (!$cartTotals.length) {
+            // Try alternative selector for checkout
+            $cartTotals = $('.wc-block-components-totals-wrapper, .wc-block-components-order-summary');
+        }
+        
+        if (!$cartTotals.length) {
+            return;
+        }
+        
+        // Check if we already added our breakdown
+        if ($('.bundle-tax-blocks-wrapper').length) {
+            return;
+        }
+        
+        // Find tax rows in the blocks cart and hide them
+        var $taxRows = $cartTotals.find('.wc-block-components-totals-taxes, .wc-block-components-totals-item:contains("BTW"), .wc-block-components-totals-item:contains("Tax")');
+        $taxRows.hide();
+        
+        // Build the breakdown HTML
+        var breakdownHtml = '<div class="bundle-tax-blocks-wrapper">';
+        breakdownHtml += '<div class="bundle-tax-collapsible">';
+        breakdownHtml += '<button type="button" class="bundle-tax-toggle" aria-expanded="false">';
+        breakdownHtml += '<span class="bundle-tax-label">' + data.labels.btw + '</span>';
+        breakdownHtml += '<span class="bundle-tax-total">' + data.total_tax_html + '</span>';
+        breakdownHtml += '<span class="bundle-tax-toggle-icon" aria-hidden="true">▼</span>';
+        breakdownHtml += '</button>';
+        breakdownHtml += '<div class="bundle-tax-breakdown" style="display: none;">';
+        breakdownHtml += '<ul class="bundle-tax-breakdown-list">';
+        
+        for (var i = 0; i < data.breakdown.length; i++) {
+            var item = data.breakdown[i];
+            breakdownHtml += '<li class="bundle-tax-breakdown-item">';
+            breakdownHtml += '<span class="breakdown-product">' + item.product_name + '</span>';
+            breakdownHtml += '<span class="breakdown-details">';
+            breakdownHtml += '<span class="breakdown-subtotal">' + item.subtotal_html + '</span>';
+            breakdownHtml += '<span class="breakdown-rate">@ ' + item.tax_rate + '%</span>';
+            breakdownHtml += '<span class="breakdown-tax">' + item.tax_amount_html + '</span>';
+            breakdownHtml += '</span>';
+            breakdownHtml += '</li>';
+        }
+        
+        breakdownHtml += '</ul>';
+        breakdownHtml += '</div>';
+        breakdownHtml += '</div>';
+        breakdownHtml += '</div>';
+        
+        // Insert before the total or at the end of cart totals
+        var $orderTotal = $cartTotals.find('.wc-block-components-totals-footer-item, .wc-block-components-totals-item--total');
+        if ($orderTotal.length) {
+            $orderTotal.first().before(breakdownHtml);
+        } else {
+            $cartTotals.append(breakdownHtml);
+        }
+    }
+    
+    // Initialize tax toggle
+    initTaxBreakdownToggle();
+    
+    // Render blocks cart tax breakdown
+    renderBlocksCartTaxBreakdown();
+    
+    // Re-initialize after AJAX cart updates (WooCommerce classic)
+    $(document.body).on('updated_cart_totals updated_checkout', function() {
+        // The HTML is re-rendered, so our event delegation handles it automatically
+        // For blocks, we need to re-render
+        setTimeout(renderBlocksCartTaxBreakdown, 100);
+    });
+    
+    // For WooCommerce Blocks - listen for React re-renders
+    // Use MutationObserver to detect when the cart totals are updated
+    if ($('.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout').length) {
+        var observer = new MutationObserver(function(mutations) {
+            // Check if our tax breakdown was removed (React re-rendered)
+            if (!$('.bundle-tax-blocks-wrapper').length && window.simpleBundleTaxData) {
+                renderBlocksCartTaxBreakdown();
+            }
+        });
+        
+        var cartBlocks = document.querySelector('.wp-block-woocommerce-cart, .wp-block-woocommerce-checkout');
+        if (cartBlocks) {
+            observer.observe(cartBlocks, {
+                childList: true,
+                subtree: true
+            });
+        }
+    }
+    
+    // =========================================================================
+    // Bundle Product Page Functionality
+    // =========================================================================
+    
     var $wrapper = $('.bundle-items-wrapper');
     
     if (!$wrapper.length) {

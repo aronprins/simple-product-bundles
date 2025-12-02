@@ -307,13 +307,19 @@ class Simple_Product_Bundles_Frontend {
      * Enqueue frontend scripts
      */
     public function frontend_scripts() {
-        if (is_product()) {
+        // Load on product pages, cart, and checkout for tax breakdown display
+        $should_load = is_product() || is_cart() || is_checkout();
+        
+        if ($should_load) {
             $price_suffix = '';
-            $product_id = get_the_ID();
-            if ($product_id) {
-                $product = wc_get_product($product_id);
-                if ($product && $product->get_type() === 'bundle') {
-                    $price_suffix = get_post_meta($product_id, '_bundle_price_suffix', true);
+            
+            if (is_product()) {
+                $product_id = get_the_ID();
+                if ($product_id) {
+                    $product = wc_get_product($product_id);
+                    if ($product && $product->get_type() === 'bundle') {
+                        $price_suffix = get_post_meta($product_id, '_bundle_price_suffix', true);
+                    }
                 }
             }
             
