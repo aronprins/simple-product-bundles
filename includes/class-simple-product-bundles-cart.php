@@ -19,6 +19,13 @@ class Simple_Product_Bundles_Cart {
     private static $bundle_tax_breakdown = [];
 
     /**
+     * Track processed cart items in current calculation cycle to prevent double-counting
+     *
+     * @var array
+     */
+    private static $processed_cart_items = [];
+
+    /**
      * Constructor
      */
     public function __construct() {
@@ -426,8 +433,9 @@ class Simple_Product_Bundles_Cart {
         }
         $running = true;
         
-        // Clear tax breakdown for fresh calculation
+        // Clear tax breakdown and processed items for fresh calculation
         self::$bundle_tax_breakdown = [];
+        self::$processed_cart_items = [];
         
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             if (isset($cart_item['bundle_price'])) {
@@ -456,6 +464,18 @@ class Simple_Product_Bundles_Cart {
             return $taxes;
         }
         
+        // Safety: if breakdown is empty but we have processed items, we're in a new calculation cycle
+        // Clear processed items to start fresh (handles edge cases where calculate_totals() is called directly)
+        if (empty(self::$bundle_tax_breakdown) && !empty(self::$processed_cart_items)) {
+            self::$processed_cart_items = [];
+        }
+        
+        // Prevent double-counting: if we've already processed this cart item in this calculation cycle, skip it
+        // This prevents exponential tax accumulation when calculate_totals() is called multiple times
+        if (isset(self::$processed_cart_items[$item->key])) {
+            return $taxes;
+        }
+        
         // Get the actual cart item data from the cart
         $cart = WC()->cart;
         if (!$cart) {
@@ -473,6 +493,9 @@ class Simple_Product_Bundles_Cart {
         if (!isset($cart_item['bundle_configuration']) || empty($cart_item['bundle_configuration'])) {
             return $taxes;
         }
+        
+        // Mark this cart item as processed to prevent double-counting
+        self::$processed_cart_items[$item->key] = true;
         
         // Get the bundle product to retrieve bundle items config
         $bundle_product_id = $cart_item['product_id'];
@@ -578,6 +601,8 @@ class Simple_Product_Bundles_Cart {
                     $rate_label = isset($rate_info['label']) ? $rate_info['label'] : __('Tax', 'simple-product-bundles');
                     $rate_percentage = isset($rate_info['rate']) ? $rate_info['rate'] : 0;
                     
+                    // Aggregate by product_id (same product in different bundles should be aggregated)
+                    // But prevent double-counting by tracking processed cart items
                     if (!isset(self::$bundle_tax_breakdown[$product_id])) {
                         self::$bundle_tax_breakdown[$product_id] = [
                             'product_name' => $bundled_product->get_name(),
@@ -587,7 +612,9 @@ class Simple_Product_Bundles_Cart {
                             'tax_rate'     => $rate_percentage,
                         ];
                     } else {
+                        // Aggregate: same product in multiple bundles or multiple quantities
                         self::$bundle_tax_breakdown[$product_id]['tax_amount'] += $tax_amount_display;
+                        self::$bundle_tax_breakdown[$product_id]['subtotal'] += $total_item_price;
                     }
                 }
             }
