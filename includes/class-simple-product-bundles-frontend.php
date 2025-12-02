@@ -100,6 +100,7 @@ class Simple_Product_Bundles_Frontend {
         $discount = floatval(get_post_meta($product->get_id(), '_bundle_discount', true));
         $hide_images = get_post_meta($product->get_id(), '_bundle_hide_images', true) === 'yes';
         $price_suffix = get_post_meta($product->get_id(), '_bundle_price_suffix', true);
+        $volume_label = get_post_meta($product->get_id(), '_bundle_volume_label', true);
         
         if (empty($bundle_items) || !is_array($bundle_items)) {
             echo '<p class="bundle-empty-message">' . esc_html__('This bundle has no products configured.', 'simple-product-bundles') . '</p>';
@@ -156,8 +157,9 @@ class Simple_Product_Bundles_Frontend {
             
             // Volume discount tiers display
             if (!empty($volume_discounts)) {
+                $volume_label_text = !empty($volume_label) ? $volume_label : __('Volume Deals:', 'simple-product-bundles');
                 echo '<div class="bundle-volume-tiers">';
-                echo '<div class="volume-tiers-label">' . esc_html__('Volume Deals:', 'simple-product-bundles') . '</div>';
+                echo '<div class="volume-tiers-label">' . esc_html($volume_label_text) . '</div>';
                 echo '<div class="volume-tiers-badges">';
                 
                 // Sort tiers by min_qty to determine ranges

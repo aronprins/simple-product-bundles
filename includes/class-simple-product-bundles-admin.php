@@ -78,6 +78,7 @@ class Simple_Product_Bundles_Admin {
         $enable_bundle_qty = get_post_meta($post->ID, '_bundle_enable_qty', true);
         $hide_images = get_post_meta($post->ID, '_bundle_hide_images', true);
         $price_suffix = get_post_meta($post->ID, '_bundle_price_suffix', true);
+        $volume_label = get_post_meta($post->ID, '_bundle_volume_label', true);
         
         // Output nonce field for security
         wp_nonce_field('save_bundle_data', 'bundle_data_nonce');
@@ -139,6 +140,14 @@ class Simple_Product_Bundles_Admin {
                            value="<?php echo esc_attr($price_suffix); ?>" 
                            placeholder="<?php esc_attr_e('e.g., Excl. BTW', 'simple-product-bundles'); ?>">
                     <span class="description"><?php esc_html_e('Text displayed after prices (e.g., "Excl. BTW" or "Excl. VAT")', 'simple-product-bundles'); ?></span>
+                </div>
+                
+                <div class="bundle-volume-label-field">
+                    <label for="_bundle_volume_label"><?php esc_html_e('Volume Tiers Label', 'simple-product-bundles'); ?></label>
+                    <input type="text" id="_bundle_volume_label" name="_bundle_volume_label" 
+                           value="<?php echo esc_attr($volume_label); ?>" 
+                           placeholder="<?php esc_attr_e('Volume Deals:', 'simple-product-bundles'); ?>">
+                    <span class="description"><?php esc_html_e('Custom label for volume discount tiers (default: "Volume Deals:")', 'simple-product-bundles'); ?></span>
                 </div>
             </div>
         </div>
@@ -388,6 +397,10 @@ class Simple_Product_Bundles_Admin {
         // Save price suffix
         $price_suffix = isset($_POST['_bundle_price_suffix']) ? sanitize_text_field($_POST['_bundle_price_suffix']) : '';
         update_post_meta($post_id, '_bundle_price_suffix', $price_suffix);
+        
+        // Save volume tiers label
+        $volume_label = isset($_POST['_bundle_volume_label']) ? sanitize_text_field($_POST['_bundle_volume_label']) : '';
+        update_post_meta($post_id, '_bundle_volume_label', $volume_label);
     }
 
     /**

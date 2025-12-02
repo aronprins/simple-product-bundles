@@ -345,6 +345,43 @@
     font-size: 12px;
 }
 
+/* Volume label field */
+#bundle_items_data .bundle-volume-label-field {
+    padding: 1.5em;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#bundle_items_data .bundle-volume-label-field label {
+    font-weight: 600;
+    color: #23282d;
+    margin: 0 !important;
+    float: none !important;
+    width: auto !important;
+}
+
+#bundle_items_data .bundle-volume-label-field input[type="text"] {
+    width: 200px !important;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+#bundle_items_data .bundle-volume-label-field input[type="text"]:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+#bundle_items_data .bundle-volume-label-field .description {
+    color: #666;
+    font-size: 12px;
+}
+
 /* Tab icon */
 #woocommerce-product-data ul.wc-tabs li.bundle_items_options a::before {
     content: "\f481";
